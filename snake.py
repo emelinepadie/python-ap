@@ -29,22 +29,22 @@ while True:
             if event.key == pygame.K_q:
                 pygame.quit()                               ## raccourcit clavier pour arrêter le programme
             if event.key == pygame.K_LEFT :                 ## déplacer le snake vers la gauche
-                for i in range (1):
+                for i in range (2):
                     middle[i] = head[i]
                     tail[i] = middle[i]
                 head[1] -= 20             
             if event.key == pygame.K_RIGHT :                ## déplacer le snake vers la droite
-                for i in range (1):
+                for i in range (2):
                     middle[i] = head[i]
                     tail[i] = middle[i]
                 head[1] += 20
             if event.key == pygame.K_UP :                   ## déplacer le snake vers le haut
-                for i in range (1):
+                for i in range (2):
                     middle[i] = head[i]
                     tail[i] = middle[i]
                 head[0] -= 20
             if event.key == pygame.K_DOWN :                 ## déplacer le snake vers le bas
-                for i in range (1):
+                for i in range (2):
                     middle[i] = head[i]
                     tail[i] = middle[i]
                 head[0] += 20
