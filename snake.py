@@ -1,4 +1,5 @@
 import pygame
+import random as rd
 
 pygame.init()
 
@@ -16,11 +17,27 @@ longueur = 20*3
 lefts = 5*20                                                 ## position du snake à t = 0
 tops = 10*20
 
+nbr_cases_horiz = 400/20
+nbr_cases_verti = 300/20
 
 dir = (1, 0)                                                  ##translation horizontale, et non verticale
 snake = [ (10*20, 7*20), (10*20, 6*20), (10*20, 5*20)]
-fruit = [3*20, 3*20]
+fruit = (3*20, 3*20)
 rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
+## déplacement du serpent
+    
+def avancer(direction, snake) : 
+    snake.pop()
+    snake.insert(0, (snake[0][0] + direction[0]*20,snake[0][1] + direction[1]*20 ))
+
+#modification taille du snake
+def grandir(snake) : 
+    n = len(snake)
+    snake.insert(n, snake[-1])
+
+
+def random_fruit() : 
+    return(rd.randint(0, nbr_cases_horiz)*20, rd.randint(0, nbr_cases_verti)*20)
 
 while True:
 
@@ -52,15 +69,8 @@ while True:
         rect = pygame.Rect(snake[k][0], snake[k][1], HAUTEUR, HAUTEUR)
         pygame.draw.rect(screen, VERT, rect)
 
-
+    #affichage du fruit
     pygame.draw.rect(screen, ROUGE, rfruit)
-
-
-    ## déplacement du serpent
-    
-    def avancer(direction, snake) : 
-        snake.pop()
-        snake.insert(0, (snake[0][0] + direction[0]*20,snake[0][1] + direction[1]*20 ))
 
     avancer(dir, snake)
 
@@ -80,31 +90,13 @@ while True:
             if event.key == pygame.K_DOWN :                 ## déplacer le snake vers le bas
                 dir = (0,1)
                 avancer(dir, snake)
-    
-    
-    ## faire apparaître le fruit
-    
 
-    if snake[0][1] == fruit : 
 
-        if snake[-1][0] == 'right' : 
-            snake.append(['right', [snake[-1][1][0], snake[-1][1][1] - 20]] )
-        if snake[-1][0] == 'left' : 
-            snake.append(['left', [snake[-1][1][0], snake[-1][1][1] + 20]] )
-        if snake[-1][0] == 'up' : 
-            snake.append(['up', [snake[-1][1][0] + 20, snake[-1][1][1]]] )
-        if snake[-1][0] == 'down' : 
-            snake.append(['right', [snake[-1][1][0] - 20, snake[-1][1][1]]] )
-
-        if fruit == [3*20, 3*20] : 
-            fruit = [10*20, 15*20]
-            print(1, fruit)
-        else : 
-            fruit = [3*20, 3*20]
-            print(2)
-
-    rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
-    
+    if snake[0] == fruit : 
+        grandir(snake)
+        fruit = random_fruit()
+        print(fruit)
+        rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
 
 
     pygame.display.update()
