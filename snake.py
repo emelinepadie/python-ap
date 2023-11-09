@@ -1,11 +1,13 @@
 import pygame
 
 pygame.init()
+
 ##constantes
 screen = pygame.display.set_mode( (400, 300) )
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 VERT = (0, 255, 0)
+ROUGE = (255, 0, 0)
 LARGEUR = 20
 
 clock = pygame.time.Clock()
@@ -15,7 +17,9 @@ lefts = 5*20                                                 ## position du snak
 tops = 10*20
 #snake = [HAUTEUR, longueur, lefts, tops]
 
-snake = ['right', [10*20, 5*20], [10*20, 6*20], [10*20, 7*20], 'right']
+snake = [['right', [10*20, 7*20]], ['right', [10*20, 6*20]], ['right', [10*20, 5*20]]]
+fruit = [3*20, 3*20]
+rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
 
 while True:
 
@@ -43,35 +47,39 @@ while True:
         left += 40
 
     ## création du serpent à t = 0
-    rect = pygame.Rect(snake[1][1], snake[1][0], HAUTEUR, HAUTEUR)
-    pygame.draw.rect(screen, VERT, rect)
-    rect = pygame.Rect(snake[2][1], snake[2][0], HAUTEUR, HAUTEUR)
-    pygame.draw.rect(screen, VERT, rect)
-    rect = pygame.Rect(snake[3][1], snake[3][0], HAUTEUR, HAUTEUR)
-    pygame.draw.rect(screen, VERT, rect)
+    for k in range(len(snake)) : 
+        rect = pygame.Rect(snake[k][1][1], snake[k][1][0], HAUTEUR, HAUTEUR)
+        pygame.draw.rect(screen, VERT, rect)
+
+
+    pygame.draw.rect(screen, ROUGE, rfruit)
+
 
     ## déplacement du serpent
-
-    if snake[0] == 'right' : 
-        for i in range (1, len(snake) - 1):
+    if snake[0][0] == 'right' : 
+        for i in range (1, len(snake)):
             for k in range (2) : 
-                snake[len(snake) - i][k] = snake[len(snake) - i - 1][k]
-        head[1] += 20
-    if snake[0] == 'left' : 
-        for i in range (1, len(snake) - 1):
+                snake[- i][1][k] = snake[- i - 1][1][k]
+                snake[-i][0] = snake[-i-1][0]
+        snake[0][1][1] += 20
+    if snake[0][0] == 'left' : 
+        for i in range (1, len(snake)):
             for k in range (2) : 
-                snake[len(snake) - i][k] = snake[len(snake) - i - 1][k]
-        head[1] -= 20 
-    if snake[0] =='up' : 
-        for i in range (1, len(snake) - 1):
+                snake[ - i][1][k] = snake[- i - 1][1][k]
+                snake[-i][0] = snake[-i-1][0]
+        snake[0][1][1] -= 20 
+    if snake[0][0] =='up' : 
+        for i in range (1, len(snake)):
             for k in range (2) : 
-                snake[len(snake) - i][k] = snake[len(snake) - i - 1][k]
-        head[0] -= 20 
-    if snake[0] == 'down' : 
-        for i in range (1, len(snake) - 1):
+                snake[- i][1][k] = snake[- i - 1][1][k]
+                snake[-i][0] = snake[-i-1][0]
+        snake[0][1][0] -= 20 
+    if snake[0][0] == 'down' : 
+        for i in range (1, len(snake)):
             for k in range (2) : 
-                snake[len(snake) - i][k] = snake[len(snake) - i - 1][k]
-        head[0] += 20
+                snake[ - i][1][k] = snake[- i - 1][1][k]
+                snake[-i][0] = snake[-i-1][0]
+        snake[0][1][0] += 20
         
 
 
@@ -80,40 +88,62 @@ while True:
             if event.key == pygame.K_q:
                 pygame.quit()                               ## raccourcit clavier pour arrêter le programme
             if event.key == pygame.K_LEFT :                 ## déplacer le snake vers la gauche
-                for i in range (1, len(snake) - 1):
+                for i in range (1, len(snake)):
                     for k in range (2) : 
-                        snake[len(snake) - i][k] = snake[len(snake) - i - 1][k]
-                head[1] -= 20 
-                snake[0] = 'left'            
+                        snake[- i][1][k] = snake[- i - 1][1][k]
+                        snake[-i][0] = snake[-i-1][0]
+                snake[0][1][1] -= 20 
+                snake[0][0] = 'left'            
             if event.key == pygame.K_RIGHT :                ## déplacer le snake vers la droite
-                for i in range (1, len(snake) - 1):
+                for i in range (1, len(snake)):
                     for k in range (2) : 
-                        snake[len(snake) - i][k] = snake[len(snake) - i - 1][k]
-                head[1] += 20
-                snake[0] = 'right'
+                        snake[- i][1][k] = snake[- i - 1][1][k]
+                        snake[-i][0] = snake[-i-1][0]
+                snake[0][1][1] += 20
+                snake[0][0] = 'right'
             if event.key == pygame.K_UP :                   ## déplacer le snake vers le haut
-                for i in range (1, len(snake) - 1):
+                for i in range (1, len(snake)):
                     for k in range (2) : 
-                        snake[len(snake) - i][k] = snake[len(snake) - i - 1][k]
-                head[0] -= 20
-                snake[0] = 'up'
+                        snake[- i][1][k] = snake[- i - 1][1][k]
+                        snake[-i][0] = snake[-i-1][0]
+                snake[0][1][0] -= 20
+                snake[0][0] = 'up'
             if event.key == pygame.K_DOWN :                 ## déplacer le snake vers le bas
-                for i in range (1, len(snake) - 1):
+                for i in range (1, len(snake)):
                     for k in range (2) : 
-                        snake[len(snake) - i][k] = snake[len(snake) - i - 1][k]
-                head[0] += 20
-                snake[0] = 'down'
+                        snake[- i][1][k] = snake[- i - 1][1][k]
+                        snake[-i][0] = snake[-i-1][0]
+                snake[0][1][0] += 20
+                snake[0][0] = 'down'
     
     
     ## faire apparaître le fruit
     
-    
 
+    if snake[0][1] == fruit : 
+
+        if snake[-1][0] == 'right' : 
+            snake.append(['right', [snake[-1][1][0], snake[-1][1][1] - 20]] )
+        if snake[-1][0] == 'left' : 
+            snake.append(['left', [snake[-1][1][0], snake[-1][1][1] + 20]] )
+        if snake[-1][0] == 'up' : 
+            snake.append(['up', [snake[-1][1][0] + 20, snake[-1][1][1]]] )
+        if snake[-1][0] == 'down' : 
+            snake.append(['right', [snake[-1][1][0] - 20, snake[-1][1][1]]] )
+
+        if fruit == [3*20, 3*20] : 
+            fruit = [10*20, 15*20]
+            print(1, fruit)
+        else : 
+            fruit = [3*20, 3*20]
+            print(2)
+
+    rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
     
 
 
     pygame.display.update()
 
-
+pygame.quit(0)
 
 
