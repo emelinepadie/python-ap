@@ -15,9 +15,10 @@ HAUTEUR = 20
 longueur = 20*3
 lefts = 5*20                                                 ## position du snake à t = 0
 tops = 10*20
-#snake = [HAUTEUR, longueur, lefts, tops]
 
-snake = [['right', [10*20, 7*20]], ['right', [10*20, 6*20]], ['right', [10*20, 5*20]]]
+
+dir = (1, 0)                                                  ##translation horizontale, et non verticale
+snake = [ (10*20, 7*20), (10*20, 6*20), (10*20, 5*20)]
 fruit = [3*20, 3*20]
 rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
 
@@ -48,7 +49,7 @@ while True:
 
     ## création du serpent à t = 0
     for k in range(len(snake)) : 
-        rect = pygame.Rect(snake[k][1][1], snake[k][1][0], HAUTEUR, HAUTEUR)
+        rect = pygame.Rect(snake[k][0], snake[k][1], HAUTEUR, HAUTEUR)
         pygame.draw.rect(screen, VERT, rect)
 
 
@@ -56,65 +57,29 @@ while True:
 
 
     ## déplacement du serpent
-    if snake[0][0] == 'right' : 
-        for i in range (1, len(snake)):
-            for k in range (2) : 
-                snake[- i][1][k] = snake[- i - 1][1][k]
-                snake[-i][0] = snake[-i-1][0]
-        snake[0][1][1] += 20
-    if snake[0][0] == 'left' : 
-        for i in range (1, len(snake)):
-            for k in range (2) : 
-                snake[ - i][1][k] = snake[- i - 1][1][k]
-                snake[-i][0] = snake[-i-1][0]
-        snake[0][1][1] -= 20 
-    if snake[0][0] =='up' : 
-        for i in range (1, len(snake)):
-            for k in range (2) : 
-                snake[- i][1][k] = snake[- i - 1][1][k]
-                snake[-i][0] = snake[-i-1][0]
-        snake[0][1][0] -= 20 
-    if snake[0][0] == 'down' : 
-        for i in range (1, len(snake)):
-            for k in range (2) : 
-                snake[ - i][1][k] = snake[- i - 1][1][k]
-                snake[-i][0] = snake[-i-1][0]
-        snake[0][1][0] += 20
-        
+    
+    def avancer(direction, snake) : 
+        snake.pop()
+        snake.insert(0, (snake[0][0] + direction[0]*20,snake[0][1] + direction[1]*20 ))
 
+    avancer(dir, snake)
 
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
                 pygame.quit()                               ## raccourcit clavier pour arrêter le programme
             if event.key == pygame.K_LEFT :                 ## déplacer le snake vers la gauche
-                for i in range (1, len(snake)):
-                    for k in range (2) : 
-                        snake[- i][1][k] = snake[- i - 1][1][k]
-                        snake[-i][0] = snake[-i-1][0]
-                snake[0][1][1] -= 20 
-                snake[0][0] = 'left'            
+                dir = (-1, 0)
+                avancer(dir, snake)
             if event.key == pygame.K_RIGHT :                ## déplacer le snake vers la droite
-                for i in range (1, len(snake)):
-                    for k in range (2) : 
-                        snake[- i][1][k] = snake[- i - 1][1][k]
-                        snake[-i][0] = snake[-i-1][0]
-                snake[0][1][1] += 20
-                snake[0][0] = 'right'
+                dir = (1, 0)
+                avancer(dir, snake)
             if event.key == pygame.K_UP :                   ## déplacer le snake vers le haut
-                for i in range (1, len(snake)):
-                    for k in range (2) : 
-                        snake[- i][1][k] = snake[- i - 1][1][k]
-                        snake[-i][0] = snake[-i-1][0]
-                snake[0][1][0] -= 20
-                snake[0][0] = 'up'
+                dir = (0, -1)
+                avancer(dir, snake)
             if event.key == pygame.K_DOWN :                 ## déplacer le snake vers le bas
-                for i in range (1, len(snake)):
-                    for k in range (2) : 
-                        snake[- i][1][k] = snake[- i - 1][1][k]
-                        snake[-i][0] = snake[-i-1][0]
-                snake[0][1][0] += 20
-                snake[0][0] = 'down'
+                dir = (0,1)
+                avancer(dir, snake)
     
     
     ## faire apparaître le fruit
