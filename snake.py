@@ -1,7 +1,12 @@
+## modules ############
 import pygame
 import random as rd
+import sys
+import os
+#######################
 
 pygame.init()
+pygame.font.init()
 
 ##constantes
 screen = pygame.display.set_mode( (400, 300) )
@@ -20,7 +25,7 @@ tops = 10*20
 nbr_cases_horiz = 400/20
 nbr_cases_verti = 300/20
 
-dir = (1, 0)                                                  ##translation horizontale, et non verticale
+dir = (1, 0)                                                 ##translation horizontale, et non verticale
 snake = [ (10*20, 7*20), (10*20, 6*20), (10*20, 5*20)]
 fruit = (3*20, 3*20)
 rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
@@ -39,7 +44,13 @@ def grandir(snake) :
 def random_fruit() : 
     return(rd.randint(0, nbr_cases_horiz)*20, rd.randint(0, nbr_cases_verti)*20)
 
+## Score
+score = 0
+score_increment = 1
+
+
 while True:
+    font = pygame.font.Font(None, 36)
 
     clock.tick(5)
 
@@ -64,10 +75,12 @@ while True:
             top += 40
         left += 40
 
-    ## création du serpent à t = 0
+    ## création du serpent 
     for k in range(len(snake)) : 
         rect = pygame.Rect(snake[k][0], snake[k][1], HAUTEUR, HAUTEUR)
         pygame.draw.rect(screen, VERT, rect)
+
+    head = pygame.Rect(snake[0][0], snake[0][1], HAUTEUR, HAUTEUR)
 
     #affichage du fruit
     pygame.draw.rect(screen, ROUGE, rfruit)
@@ -97,6 +110,15 @@ while True:
         fruit = random_fruit()
         print(fruit)
         rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
+
+    # Score : 
+    if head.colliderect(rfruit):
+        score += score_increment
+
+    
+    score_text = font.render(f'Score: {score}', True, (0, 0, 255))
+    screen.blit(score_text, (10, 10))
+
 
 
     pygame.display.update()
