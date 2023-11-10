@@ -22,8 +22,8 @@ longueur = 20*3
 lefts = 5*20                                                 ## position du snake à t = 0
 tops = 10*20
 
-nbr_cases_horiz = 400/20
-nbr_cases_verti = 300/20
+nbr_cases_horiz = 400/20 - 1
+nbr_cases_verti = 300/20 - 1
 
 dir = (1, 0)                                                 ##translation horizontale, et non verticale
 snake = [ (10*20, 7*20), (10*20, 6*20), (10*20, 5*20)]
@@ -50,7 +50,7 @@ score_increment = 1
 
 
 while True:
-    font = pygame.font.Font(None, 36)
+    font = pygame.font.SysFont("monospace", 20)
 
     clock.tick(5)
 
@@ -108,7 +108,6 @@ while True:
     if snake[0] == fruit : 
         grandir(snake)
         fruit = random_fruit()
-        print(fruit)
         rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
 
     # Score : 
@@ -119,6 +118,8 @@ while True:
     score_text = font.render(f'Score: {score}', True, (0, 0, 255))
     screen.blit(score_text, (10, 10))
 
+    score_display = font.render(score, 1, (255,255,0))
+    screen.blit(score_display, (100, 100))
 
 
     pygame.display.update()
