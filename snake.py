@@ -8,6 +8,9 @@ import os
 pygame.init()
 pygame.font.init()
 
+pygame.display.set_caption("SNAKE")
+#pygame.font.get_font
+
 ##constantes
 screen = pygame.display.set_mode( (400, 300) )
 WHITE = (255, 255, 255)
@@ -19,8 +22,7 @@ LARGEUR = 20
 clock = pygame.time.Clock()
 HAUTEUR = 20
 longueur = 20*3
-lefts = 5*20                                                 ## position du snake à t = 0
-tops = 10*20
+
 
 nbr_cases_horiz = 400/20 - 1
 nbr_cases_verti = 300/20 - 1
@@ -42,16 +44,13 @@ def grandir(snake) :
 
 
 def random_fruit() : 
-    return(rd.randint(0, nbr_cases_horiz)*20, rd.randint(0, nbr_cases_verti)*20 - 1)
+    return(rd.randint(0, nbr_cases_horiz)*20, rd.randint(0, nbr_cases_verti)*20)
 
 ## Score
 score = 0
-score_increment = 1
-
 
 while True:
-    font = pygame.font.SysFont("monospace", 20)
-
+    
     clock.tick(5)
 
     screen.fill(WHITE)                                      ## création de l'écran vide blanc
@@ -88,8 +87,11 @@ while True:
     avancer(dir, snake)
 
     for event in pygame.event.get():
+        print(1)
         if event.type == pygame.KEYDOWN:
+            print(2)
             if event.key == pygame.K_q:
+                print(3)
                 pygame.quit()                               ## raccourcit clavier pour arrêter le programme
             if event.key == pygame.K_LEFT :                 ## déplacer le snake vers la gauche
                 dir = (-1, 0)
@@ -106,24 +108,18 @@ while True:
 
 
     if snake[0] == fruit : 
+        score += 1
         grandir(snake)
         fruit = random_fruit()
         rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
 
     # Score : 
-    if head.colliderect(rfruit):
-        score += score_increment
-
+    font = pygame.font.SysFont('comicsans', 20)
     
-    score_text = font.render(f'Score: {score}', True, (0, 0, 255))
+    score_text = font.render('Score : ' + str(score), True, (0, 0, 255))
     screen.blit(score_text, (10, 10))
-
-    score_display = font.render(score, 1, (255,255,0))
-    screen.blit(score_display, (100, 100))
 
 
     pygame.display.update()
-
-pygame.quit(0)
 
 
