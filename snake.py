@@ -42,7 +42,7 @@ def grandir(snake) :
 
 
 def random_fruit() : 
-    return(rd.randint(0, nbr_cases_horiz)*20, rd.randint(0, nbr_cases_verti)*20)
+    return(rd.randint(0, nbr_cases_horiz)*20, rd.randint(0, nbr_cases_verti)*20 - 1)
 
 ## Score
 score = 0
