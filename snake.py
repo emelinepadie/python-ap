@@ -37,7 +37,7 @@ def grandir(snake) :
 
 
 def random_fruit() : 
-    return(rd.randint(0, nbr_cases_horiz)*20, rd.randint(0, nbr_cases_verti)*20)
+    return(rd.randint(0, nbr_cases_horiz)*20 - 1, rd.randint(0, nbr_cases_verti)*20 - 1)
 
 while True:
 
@@ -95,7 +95,6 @@ while True:
     if snake[0] == fruit : 
         grandir(snake)
         fruit = random_fruit()
-        print(fruit)
         rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
 
 
