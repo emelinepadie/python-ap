@@ -1,31 +1,25 @@
 ## modules ############
 import pygame
 import random as rd
-import sys
-import os
 #######################
 
 pygame.init()
-pygame.font.init()
-
-pygame.display.set_caption("SNAKE")
-#pygame.font.get_font
 
 ##constantes
+clock = pygame.time.Clock()
 screen = pygame.display.set_mode( (400, 300) )
+
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 VERT = (0, 255, 0)
 ROUGE = (255, 0, 0)
 LARGEUR = 20
 
-clock = pygame.time.Clock()
 HAUTEUR = 20
-longueur = 20*3
+FREQUENCE = 10
 
-
-nbr_cases_horiz = 400/20 - 1
-nbr_cases_verti = 300/20 - 1
+NBR_CASES_HORIZ = 400/20 - 1
+NBR_CASES_VERTI = 300/20 - 1
 
 dir = (1, 0)                                                 ##translation horizontale, et non verticale
 snake = [ (10*20, 7*20), (10*20, 6*20), (10*20, 5*20)]
@@ -44,14 +38,14 @@ def grandir(snake) :
 
 
 def random_fruit() : 
-    return(rd.randint(0, nbr_cases_horiz)*20, rd.randint(0, nbr_cases_verti)*20)
+    return(rd.randint(0, NBR_CASES_HORIZ)*20, rd.randint(0, NBR_CASES_VERTI)*20)
 
 ## Score
 score = 0
 
 while True:
     
-    clock.tick(5)
+    clock.tick(FREQUENCE)
 
     screen.fill(WHITE)                                      ## création de l'écran vide blanc
 
@@ -87,11 +81,8 @@ while True:
     avancer(dir, snake)
 
     for event in pygame.event.get():
-        print(1)
         if event.type == pygame.KEYDOWN:
-            print(2)
-            if event.key == pygame.K_q:
-                print(3)
+            if event.key == pygame.K_q : 
                 pygame.quit()                               ## raccourcit clavier pour arrêter le programme
             if event.key == pygame.K_LEFT :                 ## déplacer le snake vers la gauche
                 dir = (-1, 0)
@@ -114,10 +105,7 @@ while True:
         rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
 
     # Score : 
-    font = pygame.font.SysFont('comicsans', 20)
-    
-    score_text = font.render('Score : ' + str(score), True, (0, 0, 255))
-    screen.blit(score_text, (10, 10))
+    pygame.display.set_caption("SNAKE - Score : " + str(score))
 
 
     pygame.display.update()
