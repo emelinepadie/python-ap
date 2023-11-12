@@ -1,26 +1,27 @@
+## modules ############
 import pygame
 import random as rd
+#######################
 
 pygame.init()
 
 ##constantes
+clock = pygame.time.Clock()
 screen = pygame.display.set_mode( (400, 300) )
+
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 VERT = (0, 255, 0)
 ROUGE = (255, 0, 0)
 LARGEUR = 20
 
-clock = pygame.time.Clock()
 HAUTEUR = 20
-longueur = 20*3
-lefts = 5*20                                                 ## position du snake à t = 0
-tops = 10*20
+FREQUENCE = 10
 
-nbr_cases_horiz = 400/20
-nbr_cases_verti = 300/20
+NBR_CASES_HORIZ = 400/20 - 1
+NBR_CASES_VERTI = 300/20 - 1
 
-dir = (1, 0)                                                  ##translation horizontale, et non verticale
+dir = (1, 0)                                                 ##translation horizontale, et non verticale
 snake = [ (10*20, 7*20), (10*20, 6*20), (10*20, 5*20)]
 fruit = (3*20, 3*20)
 rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
@@ -37,11 +38,14 @@ def grandir(snake) :
 
 
 def random_fruit() : 
-    return(rd.randint(0, nbr_cases_horiz)*20, rd.randint(0, nbr_cases_verti)*20)
+    return(rd.randint(0, NBR_CASES_HORIZ)*20, rd.randint(0, NBR_CASES_VERTI)*20)
+
+## Score
+score = 0
 
 while True:
-
-    clock.tick(5)
+    
+    clock.tick(FREQUENCE)
 
     screen.fill(WHITE)                                      ## création de l'écran vide blanc
 
@@ -64,10 +68,12 @@ while True:
             top += 40
         left += 40
 
-    ## création du serpent à t = 0
+    ## création du serpent 
     for k in range(len(snake)) : 
         rect = pygame.Rect(snake[k][0], snake[k][1], HAUTEUR, HAUTEUR)
         pygame.draw.rect(screen, VERT, rect)
+
+    head = pygame.Rect(snake[0][0], snake[0][1], HAUTEUR, HAUTEUR)
 
     #affichage du fruit
     pygame.draw.rect(screen, ROUGE, rfruit)
@@ -76,7 +82,7 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_q:
+            if event.key == pygame.K_q : 
                 pygame.quit()                               ## raccourcit clavier pour arrêter le programme
             if event.key == pygame.K_LEFT :                 ## déplacer le snake vers la gauche
                 dir = (-1, 0)
@@ -93,14 +99,15 @@ while True:
 
 
     if snake[0] == fruit : 
+        score += 1
         grandir(snake)
         fruit = random_fruit()
-        print(fruit)
         rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
+
+    # Score : 
+    pygame.display.set_caption("SNAKE - Score : " + str(score))
 
 
     pygame.display.update()
-
-pygame.quit(0)
 
 
