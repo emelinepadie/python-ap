@@ -73,11 +73,11 @@ while True:
     for j in range(int(args.height/args.tile_size)):
         for i in range(int(args.width/args.tile_size)):
             if (i + j)%2 == 0 : 
-                rect = pygame.Rect(i, j, args.tile_size, args.tile_size)
+                rect = pygame.Rect(i*args.tile_size, j*args.tile_size, args.tile_size, args.tile_size)
                 pygame.draw.rect(screen, args.bg_color_2, rect)
             else:
-                rect = pygame.Rect(i, j, args.tile_size, args.tile_size)
-                pygame.draw.rect(screen, args.bg_color_2, rect)
+                rect = pygame.Rect(i*args.tile_size, j*args.tile_size, args.tile_size, args.tile_size)
+                pygame.draw.rect(screen, args.bg_color_1, rect)
 
 
 
