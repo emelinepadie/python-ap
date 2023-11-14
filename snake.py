@@ -1,32 +1,51 @@
 ## modules ############
 import pygame
 import random as rd
+import sys
+import argparse
 #######################
 
 pygame.init()
-
-##constantes
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode( (400, 300) )
 
+##constantes par défaut
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 VERT = (0, 255, 0)
 ROUGE = (255, 0, 0)
+HEIGHT = 400
+WIDTH = 300
 LARGEUR = 20
-
 HAUTEUR = 20
-FREQUENCE = 10
+FREQUENCE = 7
 
-NBR_CASES_HORIZ = 400/20 - 1
-NBR_CASES_VERTI = 300/20 - 1
+##options
+
+parser = argparse.ArgumentParser(description='Some description.')
+parser.add_argument('--bg-color-1', type = str,default = WHITE, help ="Takes a str. Change the 1st color of the background checkerboard.")
+parser.add_argument('--bg-color-2',type = str, default = BLACK, help = "Takes a str. Change the 2d color of the background checkerboard.")
+parser.add_argument('--height',type = int, default = WIDTH, help='Take an int. Window height. Must be a multiple of tile size.')
+parser.add_argument('--width',type = int,default = HEIGHT, help='Take an int. Window width. Must be a multiple of tile size.')
+parser.add_argument('--tile-size',type = int, default = LARGEUR, help='Take an int. Size of tile.There must be minimum 20 rows and 20 columns.')
+#parser.add_argument('--fps',type = int,default = FREQUENCE,  help='Take an int. Number of frames per second.')
+#parser.add_argument('--fruit-color',type = str, default = ROUGE,  help='Take a str. Color of the fruit.')
+#parser.add_argument('--snake-color',type = str, default = VERT, help='Take an str. Color of the snake.')
+#parser.add_argument('--snake-lenght',type = int,default = 3,  help='Take an int. Lenght of the snake. Must be more than 2.')
+
+args = parser.parse_args()
+
+#####
+screen = pygame.display.set_mode( (args.width, args.height) )
+
+NBR_CASES_HORIZ = args.width/20 - 1
+NBR_CASES_VERTI = args.height/20 - 1
 
 dir = (1, 0)                                                 ##translation horizontale, et non verticale
 snake = [ (10*20, 7*20), (10*20, 6*20), (10*20, 5*20)]
 fruit = (3*20, 3*20)
-rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
-## déplacement du serpent
-    
+rfruit = pygame.Rect(fruit[0], fruit[1], args.tile_size, args.tile_size)
+
+## déplacement du serpent    
 def avancer(direction, snake) : 
     snake.pop()
     snake.insert(0, (snake[0][0] + direction[0]*20,snake[0][1] + direction[1]*20 ))
@@ -36,7 +55,7 @@ def grandir(snake) :
     n = len(snake)
     snake.insert(n, snake[-1])
 
-
+#création du fruit
 def random_fruit() : 
     return(rd.randint(0, NBR_CASES_HORIZ)*20, rd.randint(0, NBR_CASES_VERTI)*20)
 
@@ -47,33 +66,27 @@ while True:
     
     clock.tick(FREQUENCE)
 
-    screen.fill(WHITE)                                      ## création de l'écran vide blanc
+    screen.fill(args.bg_color_1)                                      ## création de l'écran vide blanc
 
     ## création de l'échequier
-    left = 0
-    while left < 400 : 
-        top = 0
-        while top < 300 : 
-            rect = pygame.Rect(left, top, LARGEUR, LARGEUR)
-            pygame.draw.rect(screen, BLACK, rect)
-            top += 40
-        left += 40
 
-    left = 20
-    while left < 400 : 
-        top = 20
-        while top < 300 : 
-            rect = pygame.Rect(left, top, LARGEUR, LARGEUR)
-            pygame.draw.rect(screen, BLACK, rect)
-            top += 40
-        left += 40
+    for j in range(int(args.height/args.tile_size)):
+        for i in range(int(args.width/args.tile_size)):
+            if (i + j)%2 == 0 : 
+                rect = pygame.Rect(i, j, args.tile_size, args.tile_size)
+                pygame.draw.rect(screen, args.bg_color_2, rect)
+            else:
+                rect = pygame.Rect(i, j, args.tile_size, args.tile_size)
+                pygame.draw.rect(screen, args.bg_color_2, rect)
+
+
 
     ## création du serpent 
     for k in range(len(snake)) : 
-        rect = pygame.Rect(snake[k][0], snake[k][1], HAUTEUR, HAUTEUR)
+        rect = pygame.Rect(snake[k][0], snake[k][1], args.tile_size, args.tile_size)
         pygame.draw.rect(screen, VERT, rect)
 
-    head = pygame.Rect(snake[0][0], snake[0][1], HAUTEUR, HAUTEUR)
+    head = pygame.Rect(snake[0][0], snake[0][1], args.tile_size, args.tile_size)
 
     #affichage du fruit
     pygame.draw.rect(screen, ROUGE, rfruit)
@@ -97,12 +110,12 @@ while True:
                 dir = (0,1)
                 avancer(dir, snake)
 
-
+    #affichage du fruit
     if snake[0] == fruit : 
         score += 1
         grandir(snake)
         fruit = random_fruit()
-        rfruit = pygame.Rect(fruit[0], fruit[1], HAUTEUR, HAUTEUR)
+        rfruit = pygame.Rect(fruit[0], fruit[1], args.tile_size, args.tile_size)
 
     # Score : 
     pygame.display.set_caption("SNAKE - Score : " + str(score))
