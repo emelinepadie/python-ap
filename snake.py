@@ -116,7 +116,7 @@ while running == True:
         score += 1
         grandir(snake)
         fruit = random_fruit()
-        rfruit = pygame.Rect(fruit[0], fruit[1], args.tile_size, args.tile_size)
+        rfruit = pygame.Rect(fruit[0]*args.tile_size, fruit[1]*args.tile_size, args.tile_size, args.tile_size)
 
     # SORTIE DE L'ECRAN
     if args.game_over_on_exit == False : 
