@@ -18,6 +18,7 @@ HEIGHT = 300
 WIDTH = 400
 LARGEUR = 20
 FREQUENCE = 7
+MIN_SIZE = 2
 
 ##options/ ARGUMENTS
 parser = argparse.ArgumentParser(description='Some description.')
@@ -32,6 +33,23 @@ parser.add_argument('--snake-color',type = str, default = VERT, help='Take an st
 parser.add_argument('--snake-lenght',type = int,default = 3,  help='Take an int. Lenght of the snake. Must be more than 2.')
 parser.add_argument('--game-over-on-exit', help='A flag.', action='store_true')
 args = parser.parse_args()
+
+##CHECKING OF ARGUMENTS
+#check that height is a multiple of tiles size
+if args.height % args.tile_size != 0 :
+    raise ValueError("The size (--height arguments) must be a multiple of (--tiles-size arguments) ")
+
+#check that width is a multiple of tiles size
+if args.width % args.tile_size != 0 :
+    raise ValueError("The size (--width arguments) must be a multiple of (--tiles-size arguments) ")
+
+#check that the lenght of the snake is not lower than MIN_SIZE
+if args.snake_lenght < MIN_SIZE :
+    raise ValueError("The size (--snake-lenght arguments) must be a lower than 2.")
+
+#check that the color of the snake is different from the colors of the checkerboard
+if args.bg_color_1 == args.snake_color or args.bg_color_2 == args.snake_color :
+    raise ValueError("The size (--bg-color-1 arguments) and (--bg-color-2 arguments )must be a different from (--snake-color arguments). ")
 
 ##creation du snake:
 def serpent(longueur) : 
@@ -73,7 +91,6 @@ while running == True:
     screen.fill(args.bg_color_1)                                      ## création de l'écran vide blanc
 
     ## création de l'échequier
-
     for j in range(int(args.height/args.tile_size)):
         for i in range(int(args.width/args.tile_size)):
             if (i + j)%2 == 0 : 
@@ -111,12 +128,14 @@ while running == True:
                 dir = (0,1)
                 avancer(dir, snake)
 
+
     #affichage du fruit
     if snake[0] == fruit : 
         score += 1
         grandir(snake)
         fruit = random_fruit()
         rfruit = pygame.Rect(fruit[0]*args.tile_size, fruit[1]*args.tile_size, args.tile_size, args.tile_size)
+
 
     # SORTIE DE L'ECRAN
     if args.game_over_on_exit == False : 
