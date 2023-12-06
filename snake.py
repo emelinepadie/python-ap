@@ -81,6 +81,7 @@ def grandir(snake) :
     n = len(snake)
     snake.insert(n, snake[-1])
 
+
 #création du fruit
 def random_fruit() : 
     return(rd.randint(0, NBR_CASES_HORIZ), rd.randint(0, NBR_CASES_VERTI))
@@ -108,47 +109,47 @@ while running == True:
     ## création de l'échequier
     for j in range(int(args.height/args.tile_size)):
 
-        logger.warning('Warning : echequier 1')
-        logger.error("Error : echequier 1.")
-        logger.critical("Critical : echequier 1.")
+        #logger.warning('Warning : echequier 1')
+        #logger.error("Error : echequier 1.")
+        #logger.critical("Critical : echequier 1.")
 
         for i in range(int(args.width/args.tile_size)):
 
-            logger.warning('Warning : echequier 2')
-            logger.error("Error : echequier 2.")
-            logger.critical("Critical : echequier 2.")
+            #logger.warning('Warning : echequier 2')
+            #logger.error("Error : echequier 2.")
+            #logger.critical("Critical : echequier 2.")
 
             if (i + j)%2 == 0 : 
                 rect = pygame.Rect(i*args.tile_size, j*args.tile_size, args.tile_size, args.tile_size)
                 pygame.draw.rect(screen, args.bg_color_2, rect)
 
-                logger.warning("Warning : tracer de l'echequier: cases %d.", args.bg_color_2)
-                logger.error("Error : tracer de l'echequier: cases %d.", args.bg_color_2)
-                logger.critical("Critical : tracer de l'echequier: cases %d.", args.bg_color_2)
+                #logger.warning("Warning : tracer de l'echequier: cases %d.", args.bg_color_2)
+                #logger.error("Error : tracer de l'echequier: cases %d.", args.bg_color_2)
+                #logger.critical("Critical : tracer de l'echequier: cases %d.", args.bg_color_2)
             else:
                 rect = pygame.Rect(i*args.tile_size, j*args.tile_size, args.tile_size, args.tile_size)
                 pygame.draw.rect(screen, args.bg_color_1, rect)
 
-                logger.warning("Warning : tracer de l'echequier : cases %d.", args.bg_color_1)
-                logger.error("Error : tracer de l'echequier : cases %d.", args.bg_color_1)
-                logger.critical("Critical : tracer de l'echequier : cases %d.", args.bg_color_1)
+                #logger.warning("Warning : tracer de l'echequier : cases %d.", args.bg_color_1)
+                #logger.error("Error : tracer de l'echequier : cases %d.", args.bg_color_1)
+                #logger.critical("Critical : tracer de l'echequier : cases %d.", args.bg_color_1)
 
     ## création du serpent 
-    for k in range(args.snake_lenght) : 
+    for k in range(len(snake)) : 
         rect = pygame.Rect(snake[k][0]*args.tile_size, snake[k][1]*args.tile_size, args.tile_size, args.tile_size)
         pygame.draw.rect(screen, args.snake_color, rect)
 
-        logger.warning("Warning : tracer du serpent.")
-        logger.error("Error : tracer du serpent.")
-        logger.critical("Critical : tracer du serpent.")
+        #logger.warning("Warning : tracer du serpent.")
+        #logger.error("Error : tracer du serpent.")
+        #logger.critical("Critical : tracer du serpent.")
 
 
     #affichage du fruit
     pygame.draw.rect(screen, args.fruit_color, rfruit)
 
-    logger.warning('Warning : tracer du fruit')
-    logger.error('Error : tracer du fruit')
-    logger.critical('Critical : tracer du fruit')
+    #logger.warning('Warning : tracer du fruit')
+    #logger.error('Error : tracer du fruit')
+    #logger.critical('Critical : tracer du fruit')
 
     avancer(dir, snake)
 
@@ -179,17 +180,17 @@ while running == True:
         rfruit = pygame.Rect(fruit[0]*args.tile_size, fruit[1]*args.tile_size, args.tile_size, args.tile_size)
 
         logger.debug('Le serpent a mange un fruit.')
-        logger.warning('Warning : affichage du fruit')
-        logger.error('Error : affichage du fruit')
-        logger.critical('Critical : affichage du fruit')
+        #logger.warning('Warning : affichage du fruit')
+        #logger.error('Error : affichage du fruit')
+        #logger.critical('Critical : affichage du fruit')
 
 
     # SORTIE DE L'ECRAN
     if args.game_over_on_exit == False : 
 
-        logger.warning("Warning : sortie de l'écran / false.")
-        logger.error("Error : sortie de l'écran / false.")
-        logger.critical("Critical : sortie de l'écran / false.")
+        #logger.warning("Warning : sortie de l'écran / false.")
+        #logger.error("Error : sortie de l'écran / false.")
+        #logger.critical("Critical : sortie de l'écran / false.")
 
         if (snake[0][0]*args.tile_size) > args.width:
             snake[0] = (0, snake[0][1])
@@ -206,9 +207,9 @@ while running == True:
     
     if args.game_over_on_exit == True : 
 
-        logger.warning("Warning : sortie de l'écran / true.")
-        logger.error("Error : sortie de l'écran / true.")
-        logger.critical("Critical : sortie de l'écran / true.")
+        #logger.warning("Warning : sortie de l'écran / true.")
+        #logger.error("Error : sortie de l'écran / true.")
+        #logger.critical("Critical : sortie de l'écran / true.")
 
         if (snake[0][0]*args.tile_size) > args.width:
             running = False
@@ -222,8 +223,12 @@ while running == True:
         elif snake[0][1] < 0 :
             running = False
             logger.debug("Le serpent est sorti.")
+    
+    ##Quitter le jeu lorsque le snake entre en contact avec lui-même
+    for i in range(1, len(snake)):
+        if snake[0] == snake[i] :
+            running = False
             
-
 
     # Score : 
     pygame.display.set_caption("SNAKE - Score : " + str(score))
