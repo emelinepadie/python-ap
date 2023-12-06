@@ -72,7 +72,7 @@ def serpent(longueur) :
     return snake
 
 ## déplacement du serpent    
-def avancer(direction, snake) : 
+def move_snake(direction, snake) : 
     snake.pop()
     snake.insert(0, (snake[0][0] + direction[0], snake[0][1] + direction[1] ))
 
@@ -81,10 +81,118 @@ def grandir(snake) :
     n = len(snake)
     snake.insert(n, snake[-1])
 
-
-#création du fruit
-def random_fruit() : 
+#création du nouveau fruit
+def update_fruit() : 
     return(rd.randint(0, NBR_CASES_HORIZ), rd.randint(0, NBR_CASES_VERTI))
+
+#affichage du snake
+def draw_snake(snake, snake_color, tile_size):
+    for k in range(len(snake)) : 
+        rect = pygame.Rect(snake[k][0]*tile_size, snake[k][1]*tile_size, tile_size, tile_size)
+        pygame.draw.rect(screen, snake_color, rect)
+
+#affichage du fruit
+def draw_fruit(fruit_color, tile_size):
+    rfruit = pygame.Rect(fruit[0]*tile_size, fruit[1]*tile_size, tile_size, tile_size)
+    pygame.draw.rect(screen, fruit_color, rfruit)
+
+#affichage de l'échéquier
+def draw_checkerboard(height, width, tile_size, bg_color_1, bg_color_2):
+    for j in range(int(height/tile_size)):
+
+        for i in range(int(width/tile_size)):
+
+            if (i + j)%2 == 0 : 
+                rect = pygame.Rect(i*tile_size, j*tile_size, tile_size, tile_size)
+                pygame.draw.rect(screen, bg_color_2, rect)
+
+            else:
+                rect = pygame.Rect(i*tile_size, j*tile_size, tile_size, tile_size)
+                pygame.draw.rect(screen, bg_color_1, rect)
+
+#affichage de tous les affichages
+def draw(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color):
+    draw_checkerboard(height, width, tile_size, bg_color_1, bg_color_2)
+    draw_snake(snake, snake_color, tile_size)
+    draw_fruit(fruit_color, tile_size)
+    
+##calcul du score
+def get_score(score):
+    return score + 1
+
+##affichages
+def update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color, score):
+    draw(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color)
+    pygame.display.set_caption("SNAKE - Score : " + str(score))
+    pygame.display.update()
+
+## gestion des évènements
+def process_events(dir, snake, fruit, score, tile_size, width, height):
+
+    running = True
+
+    ## évènements claviers
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q : 
+                pygame.quit()                               ## raccourcit clavier pour arrêter le programme
+                logger.debug("Fin du jeu.")
+            if event.key == pygame.K_LEFT :                 ## déplacer le snake vers la gauche
+                dir = (-1, 0)
+                move_snake(dir, snake)
+            if event.key == pygame.K_RIGHT :                ## déplacer le snake vers la droite
+                dir = (1, 0)
+                move_snake(dir, snake)
+            if event.key == pygame.K_UP :                   ## déplacer le snake vers le haut
+                dir = (0, -1)
+                move_snake(dir, snake)
+            if event.key == pygame.K_DOWN :                  ## déplacer le snake vers le bas
+                dir = (0,1)
+                move_snake(dir, snake)
+    
+    #le serpent mange le fruit
+    if snake[0] == fruit : 
+        score = get_score(score)
+        grandir(snake)
+        fruit = update_fruit()
+    
+    # SORTIE DE L'ECRAN
+    if args.game_over_on_exit == False : 
+
+        if (snake[0][0]*tile_size) > width:
+            snake[0] = (0, snake[0][1])
+            logger.debug("Le serpent est sorti de l'ecran par la droite.")
+        elif snake[0][0] < 0 : 
+            snake[0] = (width//tile_size, snake[0][1])
+            logger.debug("Le serpent est sorti de l'ecran par la gauche.")
+        elif (snake[0][1]*tile_size) > height:
+            snake[0] = (snake[0][0], 0)
+            logger.debug("Le serpent est sorti de l'ecran par le bas.")
+        elif snake[0][1] < 0 :
+            snake[0] = (snake[0][0], height//tile_size)
+            logger.debug("Le serpent est sorti de l'ecran par le haut.")
+    
+    if args.game_over_on_exit == True : 
+
+        if (snake[0][0]*tile_size) > width:
+            running = False
+            logger.debug("Le serpent est sorti.")
+        elif snake[0][0] < 0 : 
+            running = False
+            logger.debug("Le serpent est sorti.")
+        elif (snake[0][1]*tile_size) > height:
+            running = False
+            logger.debug("Le serpent est sorti.")
+        elif snake[0][1] < 0 :
+            running = False
+            logger.debug("Le serpent est sorti.")
+    
+    ##Le snake entre en contact avec lui-même
+    for i in range(1, len(snake)):
+        if snake[0] == snake[i] :
+            running = False
+    return (dir, running, snake, fruit, score)
+    
 
 ## INITIALISATION
 screen = pygame.display.set_mode( (args.width, args.height) )
@@ -105,137 +213,14 @@ while running == True:
     clock.tick(args.fps)
 
     screen.fill(args.bg_color_1)                                      ## création de l'écran vide blanc
-
-    ## création de l'échequier
-    for j in range(int(args.height/args.tile_size)):
-
-        #logger.warning('Warning : echequier 1')
-        #logger.error("Error : echequier 1.")
-        #logger.critical("Critical : echequier 1.")
-
-        for i in range(int(args.width/args.tile_size)):
-
-            #logger.warning('Warning : echequier 2')
-            #logger.error("Error : echequier 2.")
-            #logger.critical("Critical : echequier 2.")
-
-            if (i + j)%2 == 0 : 
-                rect = pygame.Rect(i*args.tile_size, j*args.tile_size, args.tile_size, args.tile_size)
-                pygame.draw.rect(screen, args.bg_color_2, rect)
-
-                #logger.warning("Warning : tracer de l'echequier: cases %d.", args.bg_color_2)
-                #logger.error("Error : tracer de l'echequier: cases %d.", args.bg_color_2)
-                #logger.critical("Critical : tracer de l'echequier: cases %d.", args.bg_color_2)
-            else:
-                rect = pygame.Rect(i*args.tile_size, j*args.tile_size, args.tile_size, args.tile_size)
-                pygame.draw.rect(screen, args.bg_color_1, rect)
-
-                #logger.warning("Warning : tracer de l'echequier : cases %d.", args.bg_color_1)
-                #logger.error("Error : tracer de l'echequier : cases %d.", args.bg_color_1)
-                #logger.critical("Critical : tracer de l'echequier : cases %d.", args.bg_color_1)
-
-    ## création du serpent 
-    for k in range(len(snake)) : 
-        rect = pygame.Rect(snake[k][0]*args.tile_size, snake[k][1]*args.tile_size, args.tile_size, args.tile_size)
-        pygame.draw.rect(screen, args.snake_color, rect)
-
-        #logger.warning("Warning : tracer du serpent.")
-        #logger.error("Error : tracer du serpent.")
-        #logger.critical("Critical : tracer du serpent.")
-
-
-    #affichage du fruit
-    pygame.draw.rect(screen, args.fruit_color, rfruit)
-
-    #logger.warning('Warning : tracer du fruit')
-    #logger.error('Error : tracer du fruit')
-    #logger.critical('Critical : tracer du fruit')
-
-    avancer(dir, snake)
-
-    for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_q : 
-                pygame.quit()                               ## raccourcit clavier pour arrêter le programme
-                logger.debug("Fin du jeu.")
-            if event.key == pygame.K_LEFT :                 ## déplacer le snake vers la gauche
-                dir = (-1, 0)
-                avancer(dir, snake)
-            if event.key == pygame.K_RIGHT :                ## déplacer le snake vers la droite
-                dir = (1, 0)
-                avancer(dir, snake)
-            if event.key == pygame.K_UP :                   ## déplacer le snake vers le haut
-                dir = (0, -1)
-                avancer(dir, snake)
-            if event.key == pygame.K_DOWN :                 ## déplacer le snake vers le bas
-                dir = (0,1)
-                avancer(dir, snake)
-
-
-    #affichage du fruit
-    if snake[0] == fruit : 
-        score += 1
-        grandir(snake)
-        fruit = random_fruit()
-        rfruit = pygame.Rect(fruit[0]*args.tile_size, fruit[1]*args.tile_size, args.tile_size, args.tile_size)
-
-        logger.debug('Le serpent a mange un fruit.')
-        #logger.warning('Warning : affichage du fruit')
-        #logger.error('Error : affichage du fruit')
-        #logger.critical('Critical : affichage du fruit')
-
-
-    # SORTIE DE L'ECRAN
-    if args.game_over_on_exit == False : 
-
-        #logger.warning("Warning : sortie de l'écran / false.")
-        #logger.error("Error : sortie de l'écran / false.")
-        #logger.critical("Critical : sortie de l'écran / false.")
-
-        if (snake[0][0]*args.tile_size) > args.width:
-            snake[0] = (0, snake[0][1])
-            logger.debug("Le serpent est sorti de l'ecran par la droite.")
-        elif snake[0][0] < 0 : 
-            snake[0] = (args.width//args.tile_size, snake[0][1])
-            logger.debug("Le serpent est sorti de l'ecran par la gauche.")
-        elif (snake[0][1]*args.tile_size) > args.height:
-            snake[0] = (snake[0][0], 0)
-            logger.debug("Le serpent est sorti de l'ecran par le bas.")
-        elif snake[0][1] < 0 :
-            snake[0] = (snake[0][0], args.height//args.tile_size)
-            logger.debug("Le serpent est sorti de l'ecran par le haut.")
     
-    if args.game_over_on_exit == True : 
 
-        #logger.warning("Warning : sortie de l'écran / true.")
-        #logger.error("Error : sortie de l'écran / true.")
-        #logger.critical("Critical : sortie de l'écran / true.")
+    #déplacement du snake
+    move_snake(dir, snake)
+    dir, running, snake, fruit, score = process_events(dir, snake, fruit, score, args.tile_size, args.width, args.height)
 
-        if (snake[0][0]*args.tile_size) > args.width:
-            running = False
-            logger.debug("Le serpent est sorti.")
-        elif snake[0][0] < 0 : 
-            running = False
-            logger.debug("Le serpent est sorti.")
-        elif (snake[0][1]*args.tile_size) > args.height:
-            running = False
-            logger.debug("Le serpent est sorti.")
-        elif snake[0][1] < 0 :
-            running = False
-            logger.debug("Le serpent est sorti.")
-    
-    ##Quitter le jeu lorsque le snake entre en contact avec lui-même
-    for i in range(1, len(snake)):
-        if snake[0] == snake[i] :
-            running = False
-            
-
-    # Score : 
-    pygame.display.set_caption("SNAKE - Score : " + str(score))
-
-
-    pygame.display.update()
-
+    ##affichages
+    update_display(args.height, args.width, args.tile_size, args.bg_color_1, args.bg_color_2,args.fruit_color, snake, args.snake_color, score)
 
 print('GAME OVER')
 logger.info("Fin du jeu.")
