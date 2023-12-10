@@ -21,48 +21,40 @@ LARGEUR = 20
 FREQUENCE = 7
 MIN_SIZE = 2
 
-##options/ ARGUMENTS
-parser = argparse.ArgumentParser(description='Some description.')
-parser.add_argument('--bg-color-1', type = str,default = WHITE, help ="Takes a str. Change the 1st color of the background checkerboard.")
-parser.add_argument('--bg-color-2',type = str, default = BLACK, help = "Takes a str. Change the 2d color of the background checkerboard.")
-parser.add_argument('--height',type = int, default = HEIGHT, help='Take an int. Window height. Must be a multiple of tile size.')
-parser.add_argument('--width',type = int,default = WIDTH, help='Take an int. Window width. Must be a multiple of tile size.')
-parser.add_argument('--tile-size',type = int, default = LARGEUR, help='Take an int. Size of tile.There must be minimum 20 rows and 20 columns.')
-parser.add_argument('--fps',type = int,default = FREQUENCE,  help='Take an int. Number of frames per second.')
-parser.add_argument('--fruit-color',type = str, default = ROUGE,  help='Take a str. Color of the fruit.')
-parser.add_argument('--snake-color',type = str, default = VERT, help='Take an str. Color of the snake.')
-parser.add_argument('--snake-lenght',type = int,default = 3,  help='Take an int. Lenght of the snake. Must be more than 2.')
-parser.add_argument('--game-over-on-exit', help='A flag.', action='store_true')
-parser.add_argument('-g', '--debug', help = 'Enables debug log output.', action='store_true')
-args = parser.parse_args()
+def read_arg():
+    ##options/ ARGUMENTS
+    parser = argparse.ArgumentParser(description='Some description.')
+    parser.add_argument('--bg-color-1', type = str,default = WHITE, help ="Takes a str. Change the 1st color of the background checkerboard.")
+    parser.add_argument('--bg-color-2',type = str, default = BLACK, help = "Takes a str. Change the 2d color of the background checkerboard.")
+    parser.add_argument('--height',type = int, default = HEIGHT, help='Take an int. Window height. Must be a multiple of tile size.')
+    parser.add_argument('--width',type = int,default = WIDTH, help='Take an int. Window width. Must be a multiple of tile size.')
+    parser.add_argument('--tile-size',type = int, default = LARGEUR, help='Take an int. Size of tile.There must be minimum 20 rows and 20 columns.')
+    parser.add_argument('--fps',type = int,default = FREQUENCE,  help='Take an int. Number of frames per second.')
+    parser.add_argument('--fruit-color',type = str, default = ROUGE,  help='Take a str. Color of the fruit.')
+    parser.add_argument('--snake-color',type = str, default = VERT, help='Take an str. Color of the snake.')
+    parser.add_argument('--snake-lenght',type = int,default = 3,  help='Take an int. Lenght of the snake. Must be more than 2.')
+    parser.add_argument('--game-over-on-exit', help='A flag.', action='store_true')
+    parser.add_argument('-g', '--debug', help = 'Enables debug log output.', action='store_true')
+    args = parser.parse_args()
 
-##CHECKING OF ARGUMENTS
-#check that height is a multiple of tiles size
-if args.height % args.tile_size != 0 :
-    raise ValueError("The size (--height arguments) must be a multiple of (--tiles-size arguments) ")
+    ##CHECKING OF ARGUMENTS
+    #check that height is a multiple of tiles size
+    if args.height % args.tile_size != 0 :
+        raise ValueError("The size (--height arguments) must be a multiple of (--tiles-size arguments) ")
 
-#check that width is a multiple of tiles size
-if args.width % args.tile_size != 0 :
-    raise ValueError("The size (--width arguments) must be a multiple of (--tiles-size arguments) ")
+    #check that width is a multiple of tiles size
+    if args.width % args.tile_size != 0 :
+        raise ValueError("The size (--width arguments) must be a multiple of (--tiles-size arguments) ")
 
-#check that the lenght of the snake is not lower than MIN_SIZE
-if args.snake_lenght < MIN_SIZE :
-    raise ValueError("The size (--snake-lenght arguments) must be a lower than 2.")
+    #check that the lenght of the snake is not lower than MIN_SIZE
+    if args.snake_lenght < MIN_SIZE :
+        raise ValueError("The size (--snake-lenght arguments) must be a lower than 2.")
 
-#check that the color of the snake is different from the colors of the checkerboard
-if args.bg_color_1 == args.snake_color or args.bg_color_2 == args.snake_color :
-    raise ValueError("The size (--bg-color-1 arguments) and (--bg-color-2 arguments )must be a different from (--snake-color arguments). ")
-
-#LOG INFORMATIONS :
-
-logger = logging.getLogger(__name__)
-handler = logging.StreamHandler(sys.stderr)
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
-
-if args.debug == True :
-    logger.setLevel(logging.DEBUG)
-
+    #check that the color of the snake is different from the colors of the checkerboard
+    if args.bg_color_1 == args.snake_color or args.bg_color_2 == args.snake_color :
+        raise ValueError("The size (--bg-color-1 arguments) and (--bg-color-2 arguments )must be a different from (--snake-color arguments). ")
+    
+    return args.bg_color_1, args.bg_color_2, args.height, args. width, args.tile_size, args.fps, args.fruit_color, args.snake_color, args.snake_lenght, args.game_over_on_exit, args.debug
 
 ##CREATION DU SNAKE:
 def serpent(longueur) : 
@@ -127,10 +119,8 @@ def update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit_color
     pygame.display.update()
 
 ## gestion des évènements
-def process_events(dir, snake, fruit, score, tile_size, width, height):
-
+def process_events(dir, snake, fruit, score, tile_size, width, height, game_over_on_exit):
     running = True
-
     ## évènements claviers
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
@@ -157,7 +147,7 @@ def process_events(dir, snake, fruit, score, tile_size, width, height):
         fruit = update_fruit()
     
     # SORTIE DE L'ECRAN
-    if args.game_over_on_exit == False : 
+    if game_over_on_exit == False : 
 
         if (snake[0][0]*tile_size) > width:
             snake[0] = (0, snake[0][1])
@@ -172,7 +162,7 @@ def process_events(dir, snake, fruit, score, tile_size, width, height):
             snake[0] = (snake[0][0], height//tile_size)
             logger.debug("Le serpent est sorti de l'ecran par le haut.")
     
-    if args.game_over_on_exit == True : 
+    if game_over_on_exit == True : 
 
         if (snake[0][0]*tile_size) > width:
             running = False
@@ -193,34 +183,50 @@ def process_events(dir, snake, fruit, score, tile_size, width, height):
             running = False
     return (dir, running, snake, fruit, score)
     
+#main
+def main(fps, dir, fruit, height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color, score, game_over_on_exit):
+    clock.tick(fps)
+
+    screen.fill(bg_color_1)                                      ## création de l'écran vide blanc
+    
+    #déplacement du snake
+    move_snake(dir, snake)
+    dir, running, snake, fruit, score = process_events(dir, snake, fruit, score, tile_size, width, height, game_over_on_exit)
+    ##affichages
+    update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color, score)
+
+    return dir, snake, fruit, score, running
+
 
 ## INITIALISATION
-screen = pygame.display.set_mode( (args.width, args.height) )
 
-NBR_CASES_HORIZ = args.width/20 - 1
-NBR_CASES_VERTI = args.height/20 - 1
+BG_COLOR_1, BG_COLOR_2, HEIGHT, WIDTH, TILE_SIZE, FPS, F_COLOR, S_COLOR, S_LENGHT,GAME_OVER, DEBUG = read_arg()
+
+screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
+
+NBR_CASES_HORIZ = WIDTH/20 - 1
+NBR_CASES_VERTI = HEIGHT /20 - 1 
 
 dir = (1, 0)  
-snake = serpent(args.snake_lenght)
+snake = serpent(S_LENGHT)
 fruit = (3, 3)
-rfruit = pygame.Rect(fruit[0]*args.tile_size, fruit[1]*args.tile_size, args.tile_size, args.tile_size)
+rfruit = pygame.Rect(fruit[0]*TILE_SIZE, fruit[1]*TILE_SIZE, TILE_SIZE, TILE_SIZE)
 score = 0
+
+#LOG INFORMATIONS :
+
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler(sys.stderr)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+
+if DEBUG == True :
+    logger.setLevel(logging.DEBUG)
 
 logger.debug('Debut du jeu.')
 
 while running == True:
-    
-    clock.tick(args.fps)
-
-    screen.fill(args.bg_color_1)                                      ## création de l'écran vide blanc
-    
-
-    #déplacement du snake
-    move_snake(dir, snake)
-    dir, running, snake, fruit, score = process_events(dir, snake, fruit, score, args.tile_size, args.width, args.height)
-
-    ##affichages
-    update_display(args.height, args.width, args.tile_size, args.bg_color_1, args.bg_color_2,args.fruit_color, snake, args.snake_color, score)
+    dir, snake, fruit, score, running = main(FPS, dir, fruit, HEIGHT, WIDTH, TILE_SIZE, BG_COLOR_1, BG_COLOR_2, F_COLOR, snake, S_COLOR, score, GAME_OVER)
 
 print('GAME OVER')
 logger.info("Fin du jeu.")
