@@ -58,7 +58,7 @@ def read_arg():
     if args.bg_color_1 == args.snake_color or args.bg_color_2 == args.snake_color :
         raise ValueError("The size (--bg-color-1 arguments) and (--bg-color-2 arguments )must be a different from (--snake-color arguments). ")
     
-    return args.bg_color_1, args.bg_color_2, args.height, args. width, args.tile_size, args.fps, args.fruit_color, args.snake_color, args.snake_lenght, args.game_over_on_exit, args.debug, args.high_score_file, args.max_high_score
+    return args
 
 ##CREATION DU SNAKE:
 def serpent(longueur) : 
@@ -125,22 +125,24 @@ def update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit_color
 ## gestion des évènements
 def process_events(dir, snake, fruit, score, tile_size, width, height, game_over_on_exit):
     running = True
+    test = True
+
     ## évènements claviers
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q : 
                 pygame.quit()                               ## raccourcit clavier pour arrêter le programme
                 logger.debug("Fin du jeu.")
-            if event.key == pygame.K_LEFT :                 ## déplacer le snake vers la gauche
+            if event.key == pygame.K_LEFT and test == True :                 ## déplacer le snake vers la gauche
                 dir = (-1, 0)
                 move_snake(dir, snake)
-            if event.key == pygame.K_RIGHT :                ## déplacer le snake vers la droite
+            if event.key == pygame.K_RIGHT and test == True :                ## déplacer le snake vers la droite
                 dir = (1, 0)
                 move_snake(dir, snake)
-            if event.key == pygame.K_UP :                   ## déplacer le snake vers le haut
+            if event.key == pygame.K_UP and test == True:                   ## déplacer le snake vers le haut
                 dir = (0, -1)
                 move_snake(dir, snake)
-            if event.key == pygame.K_DOWN :                  ## déplacer le snake vers le bas
+            if event.key == pygame.K_DOWN and test == True :                  ## déplacer le snake vers le bas
                 dir = (0,1)
                 move_snake(dir, snake)
     
@@ -149,10 +151,10 @@ def process_events(dir, snake, fruit, score, tile_size, width, height, game_over
         score = get_score(score)
         grandir(snake)
         fruit = update_fruit()
-    
+
     # SORTIE DE L'ECRAN
     if game_over_on_exit == False : 
-
+        test = False
         if (snake[0][0]*tile_size) > width:
             snake[0] = (0, snake[0][1])
             logger.debug("Le serpent est sorti de l'ecran par la droite.")
@@ -185,6 +187,7 @@ def process_events(dir, snake, fruit, score, tile_size, width, height, game_over
     for i in range(1, len(snake)):
         if snake[0] == snake[i] :
             running = False
+    
     return (dir, running, snake, fruit, score)
     
 #main
@@ -234,17 +237,17 @@ def show_score(f_score):
 
 ## INITIALISATION
 
-BG_COLOR_1, BG_COLOR_2, HEIGHT, WIDTH, TILE_SIZE, FPS, F_COLOR, S_COLOR, S_LENGHT, GAME_OVER, DEBUG, HIGH_SCORE_F, max_high_score  = read_arg()
+args = read_arg()
 
-screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
+screen = pygame.display.set_mode( (args.width, args.height) )
 
-NBR_CASES_HORIZ = WIDTH/20 - 1
-NBR_CASES_VERTI = HEIGHT /20 - 1 
+NBR_CASES_HORIZ = args.width/20 - 1
+NBR_CASES_VERTI = args.height /20 - 1 
 
 dir = (1, 0)  
-snake = serpent(S_LENGHT)
+snake = serpent(args.snake_lenght)
 fruit = (3, 3)
-rfruit = pygame.Rect(fruit[0]*TILE_SIZE, fruit[1]*TILE_SIZE, TILE_SIZE, TILE_SIZE)
+rfruit = pygame.Rect(fruit[0]*args.tile_size, fruit[1]*args.tile_size, args.tile_size, args.tile_size)
 score = 0
 running  = True
 
@@ -255,17 +258,17 @@ handler = logging.StreamHandler(sys.stderr)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
-if DEBUG == True :
+if args.debug == True :
     logger.setLevel(logging.DEBUG)
 
 logger.debug('Debut du jeu.')
 
-main(FPS, dir, fruit, HEIGHT, WIDTH, TILE_SIZE, BG_COLOR_1, BG_COLOR_2, F_COLOR, snake, S_COLOR, score, GAME_OVER, running)
+main(args.fps, dir, fruit, args.height, args.width, args.tile_size, args.bg_color_1, args.bg_color_2, args.fruit_color, snake, args.snake_color, score, args.game_over_on_exit, running)
 
 print('GAME OVER')
 
 ## high score
-scores = read_scores(HIGH_SCORE_F)
+scores = read_scores(args.high_score_file)
 scores = update_high_scores(scores, score)
 shorten_hight_score(scores, max_high_score)
 f_score = write_score(scores)
