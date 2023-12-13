@@ -88,7 +88,7 @@ def draw_snake(snake, snake_color, tile_size):
         pygame.draw.rect(screen, snake_color, rect)
 
 #affichage du fruit
-def draw_fruit(fruit_color, tile_size):
+def draw_fruit(fruit, fruit_color, tile_size):
     rfruit = pygame.Rect(fruit[0]*tile_size, fruit[1]*tile_size, tile_size, tile_size)
     pygame.draw.rect(screen, fruit_color, rfruit)
 
@@ -107,18 +107,18 @@ def draw_checkerboard(height, width, tile_size, bg_color_1, bg_color_2):
                 pygame.draw.rect(screen, bg_color_1, rect)
 
 #affichage de tous les affichages
-def draw(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color):
+def draw(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, fruit, snake, snake_color):
     draw_checkerboard(height, width, tile_size, bg_color_1, bg_color_2)
     draw_snake(snake, snake_color, tile_size)
-    draw_fruit(fruit_color, tile_size)
+    draw_fruit(fruit, fruit_color, tile_size)
     
 ##calcul du score
 def get_score(score):
     return score + 1
 
 ##affichages
-def update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color, score):
-    draw(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color)
+def update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, fruit, snake, snake_color, score):
+    draw(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, fruit, snake, snake_color)
     pygame.display.set_caption("SNAKE - Score : " + str(score))
     pygame.display.update()
 
@@ -188,22 +188,18 @@ def process_events(dir, snake, fruit, score, tile_size, width, height, game_over
     return (dir, running, snake, fruit, score)
     
 #main
-def main(fps, dir, fruit, height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color, score, game_over_on_exit):
-    clock.tick(fps)
+def main(fps, dir, fruit, height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color, score, game_over_on_exit, running):
+    while running == True : 
+        clock.tick(fps)
 
-    screen.fill(bg_color_1)                                      ## création de l'écran vide blanc
+        screen.fill(bg_color_1)                                      ## création de l'écran vide blanc
     
-    #déplacement du snake
-    move_snake(dir, snake)
-    dir, running, snake, fruit, score = process_events(dir, snake, fruit, score, tile_size, width, height, game_over_on_exit)
-    ##affichages
-    update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color, score)
+        #déplacement du snake
+        move_snake(dir, snake)
+        dir, running, snake, fruit, score = process_events(dir, snake, fruit, score, tile_size, width, height, game_over_on_exit)
+        ##affichages
+        update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, fruit, snake, snake_color, score)
 
-    ## high scores
-
-
-
-    return dir, snake, fruit, score, running
 
 ## HIGH SCORE
 
@@ -250,6 +246,7 @@ snake = serpent(S_LENGHT)
 fruit = (3, 3)
 rfruit = pygame.Rect(fruit[0]*TILE_SIZE, fruit[1]*TILE_SIZE, TILE_SIZE, TILE_SIZE)
 score = 0
+running  = True
 
 #LOG INFORMATIONS :
 
@@ -263,8 +260,7 @@ if DEBUG == True :
 
 logger.debug('Debut du jeu.')
 
-while running == True:
-    dir, snake, fruit, score, running = main(FPS, dir, fruit, HEIGHT, WIDTH, TILE_SIZE, BG_COLOR_1, BG_COLOR_2, F_COLOR, snake, S_COLOR, score, GAME_OVER)
+main(FPS, dir, fruit, HEIGHT, WIDTH, TILE_SIZE, BG_COLOR_1, BG_COLOR_2, F_COLOR, snake, S_COLOR, score, GAME_OVER, running)
 
 print('GAME OVER')
 
