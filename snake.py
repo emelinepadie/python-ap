@@ -4,6 +4,7 @@ import random as rd
 import sys
 import argparse
 import logging
+import os
 #######################
 
 pygame.init()
@@ -35,6 +36,9 @@ def read_arg():
     parser.add_argument('--snake-lenght',type = int,default = 3,  help='Take an int. Lenght of the snake. Must be more than 2.')
     parser.add_argument('--game-over-on-exit', help='A flag.', action='store_true')
     parser.add_argument('-g', '--debug', help = 'Enables debug log output.', action='store_true')
+    parser.add_argument('--high-score-file', default = '$HOME/.snake_scores.txt',help = 'Localisation du fichier High Score')
+    parser.add_argument('--max-high-score', default = 5 ,help = 'Setting the maximum number of high scores to store.')
+
     args = parser.parse_args()
 
     ##CHECKING OF ARGUMENTS
@@ -54,7 +58,7 @@ def read_arg():
     if args.bg_color_1 == args.snake_color or args.bg_color_2 == args.snake_color :
         raise ValueError("The size (--bg-color-1 arguments) and (--bg-color-2 arguments )must be a different from (--snake-color arguments). ")
     
-    return args.bg_color_1, args.bg_color_2, args.height, args. width, args.tile_size, args.fps, args.fruit_color, args.snake_color, args.snake_lenght, args.game_over_on_exit, args.debug
+    return args.bg_color_1, args.bg_color_2, args.height, args. width, args.tile_size, args.fps, args.fruit_color, args.snake_color, args.snake_lenght, args.game_over_on_exit, args.debug, args.high_score_file, args.max_high_score
 
 ##CREATION DU SNAKE:
 def serpent(longueur) : 
@@ -195,12 +199,46 @@ def main(fps, dir, fruit, height, width, tile_size, bg_color_1, bg_color_2, frui
     ##affichages
     update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color, score)
 
+    ## high scores
+
+
+
     return dir, snake, fruit, score, running
+
+## HIGH SCORE
+
+def uptade_high_score(scores, new_score):
+    min_score = min(scores)[1]
+    if len(scores) < 5 or new_score > min_score : 
+        nom = input('Votre nom : ')
+        scores.append((nom, new_score))
+        score.sort()
+    return scores
+
+def read_scores(high_score_file):
+    return open(high_score_file, 'w')
+
+def write_score(scores):
+    with open('High_score.txt', 'w') as f:
+        for x in scores :
+            print(f"{scores[0]} : { scores[1]}", file=f)
+
+def shorten_hight_score(scores, max_score):
+    if len(scores) > max_score : 
+        scores.sort()
+        scores[0: len(scores) - max_scores] = []
+    
+
+def show_score(f_score):
+    with open('High_score.txt', 'w') as f:
+        for line in f_score :
+            print(f"{line}", end = '')
+    
 
 
 ## INITIALISATION
 
-BG_COLOR_1, BG_COLOR_2, HEIGHT, WIDTH, TILE_SIZE, FPS, F_COLOR, S_COLOR, S_LENGHT,GAME_OVER, DEBUG = read_arg()
+BG_COLOR_1, BG_COLOR_2, HEIGHT, WIDTH, TILE_SIZE, FPS, F_COLOR, S_COLOR, S_LENGHT, GAME_OVER, DEBUG, HIGH_SCORE_F, max_high_score  = read_arg()
 
 screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
 
@@ -229,6 +267,14 @@ while running == True:
     dir, snake, fruit, score, running = main(FPS, dir, fruit, HEIGHT, WIDTH, TILE_SIZE, BG_COLOR_1, BG_COLOR_2, F_COLOR, snake, S_COLOR, score, GAME_OVER)
 
 print('GAME OVER')
+
+## high score
+scores = read_scores(HIGH_SCORE_F)
+scores = update_high_scores(scores, score)
+shorten_hight_score(scores, max_high_score)
+f_score = write_score(scores)
+show_score(f_scores)
+
 logger.info("Fin du jeu.")
 
 #QUITTER LE PROGRAMME
