@@ -6,25 +6,32 @@ import sys
 import re
 
 ## ouverture du fichier sur l'entrée standard
-seq_id = None
-seq = None
-var = None
+id_seq = ''
+id_var = ''
+seq = ''
+var = ''
+for line in sys.stdin:
+    line = line.strip()
+    if not line.startswith(';'):
+        if line.startswith('>'):
+            if id_seq == None :
+                id_seq = line[1:]
+            elif id_var == None :
+                id_var = line[1:]
+            else:
+                print(id_seq, '\n ', seq, '\n ', var, '\n')
+                seq = ''
+                var = ''
+                id_seq = line[1:]
+                id_var = None
+        elif re.match('[ACTG]*$', line):
+            if id_var == None:
+                seq = seq + line
+            else:
+                var = var + line
 
-for line in sys.stdin :
-    if line[0] == ';' :
-        continue
-    if line[0] == '>' and seq_id == None:
-        seq_id = line
-    elif line[0] == '>' and seq_id != None:
-        continue
-    if seq == None and line[0] != ';' and line[0] != '>' and line != []: ## faire ça avec match pour selectionner une ligne
-        seq = line
-    elif var == None and seq != None:
-        var = line
-        print(seq_id, seq, var)
-        seq_id = None
-        seq = None
-        var = None
+print(id_seq, '\n ', seq, '\n ', var,'\n')       
+
 
 
 
