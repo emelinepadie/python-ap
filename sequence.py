@@ -27,10 +27,29 @@ for line in sys.stdin:
         elif re.match('[ACTG]*$', line):
             if id_var == None:
                 seq = seq + line
+            
             else:
                 var = var + line
 
-print(id_seq, '\n ', seq, '\n ', var,'\n')       
+#print(id_seq, '\n ', seq, '\n ', var,'\n')       
+
+
+
+##Needleman-Wunsh
+
+def needleman-wunsh(seq1, seq2, match = 1 , mismatch = -1, gap = -2):
+    lines = len(seq1) + 1
+    cols = len(seq2) + 1
+
+    matrix = np.zeros((lines, cols))
+
+    # creation de la première lignes
+    for i in range(1, lines):
+        matrix[0][i] = -i
+        
+    #creation de la première colonne
+    for j in range(1, cols):
+        matrix[j][0] = -1
 
 
 
