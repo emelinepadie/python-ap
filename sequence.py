@@ -37,20 +37,35 @@ for line in sys.stdin:
 
 ##Needleman-Wunsh
 
-def needleman-wunsh(seq1, seq2, match = 1 , mismatch = -1, gap = -2):
+def align_1(seq, var, mat = 1 , mismat = -1, indel = -2):
     lines = len(seq1) + 1
     cols = len(seq2) + 1
 
-    matrix = np.zeros((lines, cols))
+    matrix_n = np.zeros((lines, cols))
+    matrix_dir = np.zeros((lines, cols))
+
+    matrix_dir[0][0] = ''
 
     # creation de la première lignes
     for i in range(1, lines):
-        matrix[0][i] = -i
+        matrix_n[0][i] = -i
+        matrix_dir[0][i] = 'left'
         
     #creation de la première colonne
     for j in range(1, cols):
-        matrix[j][0] = -1
+        matrix_n[j][0] = -1
+        matrix_dir[j][0] = 'up'
+    
+    for i in range(1, lines):
+        for j in range(1, cols):
+            t = [0]*3
+
+            if var[i] == seq[j]:
+                t[0] = (matrix_n[i -1][j-1] + mat, 'diag')
 
 
 
+
+
+    
 
