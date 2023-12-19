@@ -22,6 +22,59 @@ LARGEUR = 20
 FREQUENCE = 7
 MIN_SIZE = 2
 
+##Classes
+class Fruit:
+
+    # le constructeur
+    def __init__(self, color, pos):
+        # un objet Fruit a deux attributs
+        # couleur et position
+        self._color = color
+        self._pos = pos
+
+    def get_pos(self):
+        return self._pos
+    
+    # l'afficheur
+    def __repr__(self):
+        return f"{self._color}, {self._pos}"
+    
+    def update_fruit(self) : 
+        self._pos = rd.randint(0, NBR_CASES_HORIZ), rd.randint(0, NBR_CASES_VERTI)
+    
+    def draw(self, tile_size):
+        rfruit = pygame.Rect(self._pos[0]*tile_size, self._pos[1]*tile_size, tile_size, tile_size)
+        pygame.draw.rect(screen, self._color, rfruit)
+
+class Snake:
+
+    # le constructeur
+    def __init__(self, color, pos, lenght):
+        # un objet Fruit a deux attributs
+        # couleur et position
+        self._color = color
+        self._pos = pos
+        self._lenght = lenght
+
+    def get_pos(self):
+        return self._pos
+    
+    # l'afficheur
+    def __repr__(self):
+        return f"{self._color}, {self._pos}"
+    
+    def serpent(self) : 
+        snake = [self._pos]
+        for k in range(self._lenght - 1):
+            snake.insert(0, ((self._pos[0] + k), self._pos[1]))
+        return snake
+    
+    def move_snake(self, direction, snake) : 
+        snake.pop()
+        snake.insert(0, (snake[0][0] + direction[0], snake[0][1] + direction[1] ))
+
+
+## fonctions
 def read_arg():
     ##options/ ARGUMENTS
     parser = argparse.ArgumentParser(description='Some description.')
@@ -61,36 +114,27 @@ def read_arg():
     return args
 
 ##CREATION DU SNAKE:
-def serpent(longueur) : 
-    snake = [(5, 10)]
-    for k in range(longueur - 1):
-        snake.insert(0, ((5 + k), 10))
-    return snake
+#def serpent(longueur) : 
+#    snake = [(5, 10)]
+#    for k in range(longueur - 1):
+#        snake.insert(0, ((5 + k), 10))
+#    return snake
 
 ## déplacement du serpent    
-def move_snake(direction, snake) : 
-    snake.pop()
-    snake.insert(0, (snake[0][0] + direction[0], snake[0][1] + direction[1] ))
+#def move_snake(direction, snake) : 
+#    snake.pop()
+#    snake.insert(0, (snake[0][0] + direction[0], snake[0][1] + direction[1] ))
 
 #modification taille du snake
 def grandir(snake) :    
     n = len(snake)
     snake.insert(n, snake[-1])
 
-#création du nouveau fruit
-def update_fruit() : 
-    return(rd.randint(0, NBR_CASES_HORIZ), rd.randint(0, NBR_CASES_VERTI))
-
 #affichage du snake
 def draw_snake(snake, snake_color, tile_size):
     for k in range(len(snake)) : 
         rect = pygame.Rect(snake[k][0]*tile_size, snake[k][1]*tile_size, tile_size, tile_size)
         pygame.draw.rect(screen, snake_color, rect)
-
-#affichage du fruit
-def draw_fruit(fruit, fruit_color, tile_size):
-    rfruit = pygame.Rect(fruit[0]*tile_size, fruit[1]*tile_size, tile_size, tile_size)
-    pygame.draw.rect(screen, fruit_color, rfruit)
 
 #affichage de l'échéquier
 def draw_checkerboard(height, width, tile_size, bg_color_1, bg_color_2):
@@ -107,23 +151,23 @@ def draw_checkerboard(height, width, tile_size, bg_color_1, bg_color_2):
                 pygame.draw.rect(screen, bg_color_1, rect)
 
 #affichage de tous les affichages
-def draw(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, fruit, snake, snake_color):
+def draw(height, width, tile_size, bg_color_1, bg_color_2, fruit, snake, snake_color):
     draw_checkerboard(height, width, tile_size, bg_color_1, bg_color_2)
     draw_snake(snake, snake_color, tile_size)
-    draw_fruit(fruit, fruit_color, tile_size)
+    fruit.draw(tile_size)
     
 ##calcul du score
 def get_score(score):
     return score + 1
 
 ##affichages
-def update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, fruit, snake, snake_color, score):
-    draw(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, fruit, snake, snake_color)
+def update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit, snake, snake_color, score):
+    draw(height, width, tile_size, bg_color_1, bg_color_2, fruit, snake, snake_color)
     pygame.display.set_caption("SNAKE - Score : " + str(score))
     pygame.display.update()
 
 ## gestion des évènements
-def process_events(dir, snake, fruit, score, tile_size, width, height, game_over_on_exit):
+def process_events(dir, snake, fruit_pos, score, tile_size, width, height, game_over_on_exit):
     running = True
     test = True
 
@@ -147,10 +191,11 @@ def process_events(dir, snake, fruit, score, tile_size, width, height, game_over
                 move_snake(dir, snake)
     
     #le serpent mange le fruit
-    if snake[0] == fruit : 
+    if snake[0] == fruit_pos : 
         score = get_score(score)
         grandir(snake)
-        fruit = update_fruit()
+        fruit.update_fruit()
+        pfruit = fruit.get_pos()
 
     # SORTIE DE L'ECRAN
     if game_over_on_exit == False : 
@@ -188,20 +233,20 @@ def process_events(dir, snake, fruit, score, tile_size, width, height, game_over
         if snake[0] == snake[i] :
             running = False
     
-    return (dir, running, snake, fruit, score)
+    return (dir, running, snake, fruit_pos, score)
     
 #main
-def main(fps, dir, fruit, height, width, tile_size, bg_color_1, bg_color_2, fruit_color, snake, snake_color, score, game_over_on_exit, running):
+def main(fps, dir, height, width, tile_size, bg_color_1, bg_color_2, fruit, snake, snake_color, score, game_over_on_exit, running):
     while running == True : 
         clock.tick(fps)
 
         screen.fill(bg_color_1)                                      ## création de l'écran vide blanc
-    
+        fruit_pos = fruit.get_pos()
         #déplacement du snake
         move_snake(dir, snake)
-        dir, running, snake, fruit, score = process_events(dir, snake, fruit, score, tile_size, width, height, game_over_on_exit)
+        dir, running, snake, fruit_pos, score = process_events(dir, snake, fruit_pos, score, tile_size, width, height, game_over_on_exit)
         ##affichages
-        update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit_color, fruit, snake, snake_color, score)
+        update_display(height, width, tile_size, bg_color_1, bg_color_2, fruit, snake, snake_color, score)
 
 
 ## HIGH SCORE
@@ -246,8 +291,9 @@ NBR_CASES_VERTI = args.height /20 - 1
 
 dir = (1, 0)  
 snake = serpent(args.snake_lenght)
-fruit = (3, 3)
-rfruit = pygame.Rect(fruit[0]*args.tile_size, fruit[1]*args.tile_size, args.tile_size, args.tile_size)
+fruit = Fruit(args.fruit_color, (3, 3))
+pfruit = fruit.get_pos()
+rfruit = pygame.Rect(pfruit[0]*args.tile_size, pfruit[1]*args.tile_size, args.tile_size, args.tile_size)
 score = 0
 running  = True
 
@@ -263,7 +309,7 @@ if args.debug == True :
 
 logger.debug('Debut du jeu.')
 
-main(args.fps, dir, fruit, args.height, args.width, args.tile_size, args.bg_color_1, args.bg_color_2, args.fruit_color, snake, args.snake_color, score, args.game_over_on_exit, running)
+main(args.fps, dir, args.height, args.width, args.tile_size, args.bg_color_1, args.bg_color_2, fruit, snake, args.snake_color, score, args.game_over_on_exit, running)
 
 print('GAME OVER')
 
