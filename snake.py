@@ -22,7 +22,8 @@ LARGEUR = 20
 FREQUENCE = 7
 MIN_SIZE = 2
 
-##Classes
+##CLASSES
+##Classe Fruit
 class Fruit:
 
     # le constructeur
@@ -46,6 +47,7 @@ class Fruit:
         rfruit = pygame.Rect(self._pos[0]*tile_size, self._pos[1]*tile_size, tile_size, tile_size)
         pygame.draw.rect(screen, self._color, rfruit)
 
+##Classe Snake
 class Snake:
 
     # le constructeur
@@ -290,7 +292,8 @@ NBR_CASES_HORIZ = args.width/20 - 1
 NBR_CASES_VERTI = args.height /20 - 1 
 
 dir = (1, 0)  
-snake = serpent(args.snake_lenght)
+head = Snake(args.snake_color, (5, 10), args.snake_lenght)
+snake = head.serpent()
 fruit = Fruit(args.fruit_color, (3, 3))
 pfruit = fruit.get_pos()
 rfruit = pygame.Rect(pfruit[0]*args.tile_size, pfruit[1]*args.tile_size, args.tile_size, args.tile_size)
