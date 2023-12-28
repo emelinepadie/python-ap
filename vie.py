@@ -37,6 +37,12 @@ class Checkerboard:
 
     def __repr__(self):
         return self._txt
+    
+    def read_txt(self): 
+        ## lis le fichier texte en entrée
+
+    def write_txt(self):
+        ## modifie le txt
 
 
 #Affichage
@@ -50,5 +56,4 @@ class Display:
     
     def __repr__(self):
         return self._display
-    
     
