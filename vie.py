@@ -78,8 +78,34 @@ args = read_arg()
 doc = args.i
 def open_file(doc):
     liste = open(doc, "r")
+    res = []
+    res2 = []
     for line in liste:
-        print(line, end="")
+        res.append(line)
+    for i in range(len(res)):
+        res2.append([])
+        for j in range(len(res[i])):
+            if res[i][j] != '\n' and res[i][j] != ' ':
+                res2[i].append(int(res[i][j]))
+    return res2
 
-print(open_file(doc))
+def init_checkerboard(liste, longueur, largeur):
+
+    lig = len(liste[0])
+    col = len(liste)
+    res = [[0]*longueur]*largeur
+    print(res)
+    print(lig, col)
+    for i in range(longueur):
+        for j in range(largeur):
+            if i < lig and j < col:
+                res[i][j] += liste[i][j]
+                print(res[i][j])
+            else:
+                res[i][j] += 0
+                print(res[i][j])
+    return res
+
+print(init_checkerboard(open_file(doc), 4, 4))
+
 
