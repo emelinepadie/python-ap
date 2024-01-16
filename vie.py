@@ -11,8 +11,8 @@ import os
 def read_arg():
     
     parser = argparse.ArgumentParser(description='Some description.')
-    parser.add_argument('-i', type = str,default = my_input_file.txt, help ="Takes a str. Set the path to the input file.")
-    parser.add_argument('-o',type = str, default = my_output_file.txt, help = "Takes a str. Set the path to the output file.")
+    parser.add_argument('-i', type = str,default = 'my_input_file.txt', help ="Takes a str. Set the path to the input file.")
+    parser.add_argument('-o',type = str, default = 'my_output_file.txt', help = "Takes a str. Set the path to the output file.")
     parser.add_argument('-m',type = int, default = 20, help='Take an int. Number of step to run when display is off.')
     parser.add_argument('-d',help='A flag. When True, enable pygame', action='store_true')
     parser.add_argument('-f',type = int, default = 10, help='Take an int. Number of frame per second.')
@@ -20,6 +20,7 @@ def read_arg():
     parser.add_argument('--height',type = int, default = 600,  help='Take an int. Window height.')
     
     args = parser.parse_args()
+    return args
 
 ##Classes
 
@@ -53,10 +54,10 @@ class Checkerboard:
     def __repr__(self):
         return self._txt
     
-    def read_txt(self): 
+    #def read_txt(self): 
         ## lis le fichier texte en entrée
 
-    def write_txt(self):
+    #def write_txt(self):
         ## modifie le txt
 
 
@@ -72,5 +73,39 @@ class Display:
     def __repr__(self):
         return self._display
 
-def evol(map):
+args = read_arg()
+
+doc = args.i
+def open_file(doc):
+    liste = open(doc, "r")
+    res = []
+    res2 = []
+    for line in liste:
+        res.append(line)
+    for i in range(len(res)):
+        res2.append([])
+        for j in range(len(res[i])):
+            if res[i][j] != '\n' and res[i][j] != ' ':
+                res2[i].append(int(res[i][j]))
+    return res2
+
+def init_checkerboard(liste, longueur, largeur):
+
+    lig = len(liste[0])
+    col = len(liste)
+    res = [[0]*longueur]*largeur
+    print(res)
+    print(lig, col)
+    for i in range(longueur):
+        for j in range(largeur):
+            if i < lig and j < col:
+                res[i][j] += liste[i][j]
+                print(res[i][j])
+            else:
+                res[i][j] += 0
+                print(res[i][j])
+    return res
+
+print(init_checkerboard(open_file(doc), 4, 4))
+
 
