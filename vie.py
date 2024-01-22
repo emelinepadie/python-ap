@@ -89,23 +89,27 @@ def open_file(doc):
                 res2[i].append(int(res[i][j]))
     return res2
 
-def init_checkerboard(liste, longueur, largeur):
+def complete_with_zeros(input_list, target_length):
+    # Calculer la différence de longueur entre la liste d'entrée et la longueur cible
+    length_difference = target_length - len(input_list)
+    
+    # Vérifier si la liste d'entrée est plus courte que la longueur cible
+    if length_difference > 0:
+        # Compléter la liste d'entrée avec des zéros
+        result_list = input_list + [0] * length_difference
+        return result_list
+    else:
+        # Si la liste d'entrée est déjà de la bonne longueur, la retourner telle quelle
+        return input_list
 
-    lig = len(liste[0])
-    col = len(liste)
-    res = [[0]*longueur]*largeur
-    print(res)
-    print(lig, col)
-    for i in range(longueur):
-        for j in range(largeur):
-            if i < lig and j < col:
-                res[i][j] += liste[i][j]
-                print(res[i][j])
-            else:
-                res[i][j] += 0
-                print(res[i][j])
+def init_checkerboard(liste, longueur, largeur):
+    res = [0]*largeur
+    for i in range (largeur):
+        if i < len(liste):
+            res[i] = complete_with_zeros(liste[i], longueur)
+        else :
+            res[i] = [0]*longueur
     return res
 
-print(init_checkerboard(open_file(doc), 4, 4))
-
+#print(init_checkerboard(open_file(doc), 2, 4))
 
