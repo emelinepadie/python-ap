@@ -111,5 +111,51 @@ def init_checkerboard(liste, longueur, largeur):
             res[i] = [0]*longueur
     return res
 
-#print(init_checkerboard(open_file(doc), 2, 4))
+check = init_checkerboard(open_file(doc), 4, 4)
 
+def living_neighbours(tableau, ligne, colonne):
+    c = 0
+
+    for i in range(ligne-1, ligne+2):
+        for j in range(colonne-1, colonne+2):
+            if i >= 0 and j >=0 :
+                if i< len(tableau) and j<len(tableau[0]):
+                    if i == ligne and j == colonne:
+                        c += 0
+                    else:
+                        c += tableau[i][j]
+    return c
+
+def evol_game(checkerboard):
+    lignes, cols = len(checkerboard), len(checkerboard[0])
+    res = [[0]*cols]*lignes
+    for i in range(lignes):
+        for j in range(cols):
+            if checkerboard[i][j] == 1:
+                if living_neighbours(checkerboard, i, j) <= 1:
+                    res[i][j] = 0
+                if living_neighbours(checkerboard, i, j) == 2 or living_neighbours(checkerboard, i, j) == 3:
+                    res[i][j] = 1
+                if living_neighbours(checkerboard, i, j) > 3:
+                    res[i][j] = 0
+                print(res)
+            elif checkerboard[i][j] == 0 :
+                if living_neighbours(checkerboard, i, j) == 3 :
+                    res[i][j] = 1
+                print(res)
+    return res
+
+#print(living_neighbours(check, 1, 1))
+print(evol_game(check))
+
+
+def game_of_life(step, i, longueur, largeur):
+    doc = args.i 
+    check = init_checkerboard(open_file(doc), longueur, largeur)
+
+    for i in range(step):
+        check = evol_game(check)
+
+    return check
+
+#print(game_of_life(20, 'i', 20, 20))
