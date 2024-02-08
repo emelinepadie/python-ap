@@ -225,7 +225,7 @@ def write_score(scores):
 def shorten_hight_score(scores, max_score):
     if len(scores) > max_score : 
         scores.sort()
-        scores[0: len(scores) - max_scores] = []
+        scores[0: len(scores) - max_score] = []
     
 
 def show_score(f_score):
