@@ -3,6 +3,7 @@ import sys
 import argparse
 import logging
 import os
+import pygame
 #######################
 
 ##Arguments
@@ -162,8 +163,6 @@ def living_neighbours(tableau, ligne, colonne):
                     else:
                         c += tableau[i][j]
     return c
-        
-args = read_arg()
 
 ##write the final list(list) into a document
 def write_file(res, doc):
@@ -172,16 +171,12 @@ def write_file(res, doc):
             for j in range(len(res[i])):
                 f.write(str(res[i][j]))
             f.write('\n')
-
-#initial document
-doc = args.i
-
-#initial partern as chackerboard
-check = Checkerboard(doc) 
-
-write_file(check.game_of_life(20, 5, 5), args.o)
+    f.close()
 
 def main():
+
+    args = read_arg()
+
     #initial document
     doc = args.i
 
@@ -189,7 +184,7 @@ def main():
     check = Checkerboard(doc) 
 
     #display
-    display = Display(args.d)
+    display = args.d
 
     #step
     step = args.m
@@ -203,17 +198,35 @@ def main():
     #window height
     height = args.height
 
-    #initial checkerboard
-    check.init_checkerboard(20, 5)
-
-    #checkerboard with living neighbours
-    check.mat_living_neighbours(20, 5)
-
-    #checkerboard after step
-    check.game_of_life(20, 5, 5)
+    #dimensions of document
+    longueur = width // 40
+    largeur = height // 40
 
     #display with pygame
-    if display:
-        check.game_of_life(20, 5, 5)
+    if display == False:
+        write_file(check.game_of_life(step, longueur, largeur), args.o)
+
     else:
-        write_file(check.game_of_life(20, 5, 5), args.o)
+        pygame.init()
+        screen = pygame.display.set_mode((width, height))
+        pygame.display.set_caption("Game of life")
+        clock = pygame.time.Clock()
+
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_q:
+                        pygame.quit()
+                        running = False
+            screen.fill((255, 255, 255))
+            for k in range(step):
+                for i in range(largeur):
+                    for j in range(longueur):
+                        if check.game_of_life(k, longueur, largeur)[i][j] == 1:
+                            pygame.draw.rect(screen, (0, 0, 0), (j*40, i*40, 40, 40))
+                pygame.display.flip()
+            clock.tick(fps)
+            running = False
+
+main()
