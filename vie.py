@@ -163,7 +163,6 @@ def evol_game(checkerboard):
 
     return res
 
-
 def game_of_life(step, i, longueur, largeur):
     doc = args.i 
     check = init_checkerboard(open_file(doc), longueur, largeur)
@@ -174,5 +173,3 @@ def game_of_life(step, i, longueur, largeur):
     return check
 
 #print(game_of_life(20, 'i', 20, 20))
-
-
