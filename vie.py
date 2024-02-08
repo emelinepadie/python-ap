@@ -1,5 +1,4 @@
 ## modules ############
-import pygame
 import sys
 import argparse
 import logging
@@ -76,6 +75,7 @@ class Display:
 args = read_arg()
 
 doc = args.i
+## open the document and convert it into list(list)
 def open_file(doc):
     liste = open(doc, "r")
     res = []
@@ -89,6 +89,7 @@ def open_file(doc):
                 res2[i].append(int(res[i][j]))
     return res2
 
+##complete the initial document with zero in order to match the board width dimensions
 def complete_with_zeros(input_list, target_length):
     # Calculer la différence de longueur entre la liste d'entrée et la longueur cible
     length_difference = target_length - len(input_list)
@@ -101,7 +102,9 @@ def complete_with_zeros(input_list, target_length):
     else:
         # Si la liste d'entrée est déjà de la bonne longueur, la retourner telle quelle
         return input_list
+    
 
+## complete the list(list) with correct width dimension to match height required dimension
 def init_checkerboard(liste, longueur, largeur):
     res = [0]*largeur
     for i in range (largeur):
@@ -113,6 +116,7 @@ def init_checkerboard(liste, longueur, largeur):
 
 check = init_checkerboard(open_file(doc), 4, 4)
 
+#count the number of living neighbours around a cell
 def living_neighbours(tableau, ligne, colonne):
     c = 0
 
@@ -126,27 +130,38 @@ def living_neighbours(tableau, ligne, colonne):
                         c += tableau[i][j]
     return c
 
-def evol_game(checkerboard):
-    lignes, cols = len(checkerboard), len(checkerboard[0])
-    res = [[0]*cols]*lignes
-    for i in range(lignes):
-        for j in range(cols):
-            if checkerboard[i][j] == 1:
-                if living_neighbours(checkerboard, i, j) <= 1:
-                    res[i][j] = 0
-                if living_neighbours(checkerboard, i, j) == 2 or living_neighbours(checkerboard, i, j) == 3:
-                    res[i][j] = 1
-                if living_neighbours(checkerboard, i, j) > 3:
-                    res[i][j] = 0
-                print(res)
-            elif checkerboard[i][j] == 0 :
-                if living_neighbours(checkerboard, i, j) == 3 :
-                    res[i][j] = 1
-                print(res)
+#matrice des voisins vivants
+def mat_living_neighbours(tableau):
+    res = [[]]
+    for i in range(len(tableau)):
+        res.append([])
+        for j in range(len(tableau[0])):
+            res[i].append(living_neighbours(tableau, i, j))
+    res.pop()
     return res
 
-#print(living_neighbours(check, 1, 1))
-print(evol_game(check))
+## allows to pass from one disposition to another
+def evol_game(checkerboard):
+    res = [[]]
+
+    solv = mat_living_neighbours(checkerboard)
+
+    for i in range(len(checkerboard)):
+        res.append([])
+        for j in range(len(checkerboard[0])):
+            if checkerboard[i][j] == 1:
+                if solv[i][j] < 2 or solv[i][j] > 3:
+                    res[i].append(0)
+                else:
+                    res[i].append(1)
+            else:
+                if solv[i][j] == 3:
+                    res[i].append(1)
+                else:
+                    res[i].append(0)
+    res.pop()
+
+    return res
 
 
 def game_of_life(step, i, longueur, largeur):
@@ -159,3 +174,5 @@ def game_of_life(step, i, longueur, largeur):
     return check
 
 #print(game_of_life(20, 'i', 20, 20))
+
+
