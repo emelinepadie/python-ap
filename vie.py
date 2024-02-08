@@ -53,15 +53,76 @@ class Checkerboard:
     def __repr__(self):
         return self._txt
     
-    #def read_txt(self): 
-        ## lis le fichier texte en entrée
+    ## open the document and convert it into list(list)
+    def open_file(self):
+        liste = open(str(self), "r")
+        res = []
+        res2 = []
+        for line in liste:
+            res.append(line)
+        for i in range(len(res)):
+            res2.append([])
+            for j in range(len(res[i])):
+                if res[i][j] != '\n' and res[i][j] != ' ':
+                    res2[i].append(int(res[i][j]))
+        return res2
+    
+    ## complete the list(list) with correct width dimension to match height required dimension
+    def init_checkerboard(self, longueur, largeur):
+        liste = self.open_file()
+        res = [0]*largeur
+        for i in range (largeur):
+            if i < len(liste):
+                res[i] = complete_with_zeros(liste[i], longueur)
+            else :
+                res[i] = [0]*longueur
+        return res
+    
+    #matrice des voisins vivants
+    def mat_living_neighbours(self, longueur, largeur):
+        tableau = self.init_checkerboard(longueur, largeur)
+        res = [[]]
+        for i in range(len(tableau)):
+            res.append([])
+            for j in range(len(tableau[0])):
+                res[i].append(living_neighbours(tableau, i, j))
+        res.pop()
+        return res
 
-    #def write_txt(self):
-        ## modifie le txt
+    ## allows to pass from one disposition to another
+    def evol_game(self, longueur, largeur):
+        res = [[]]
 
+        solv = self.mat_living_neighbours(longueur, largeur)
+        checkerboard = self.init_checkerboard(longueur, largeur)
+
+        for i in range(len(checkerboard)):
+            res.append([])
+            for j in range(len(checkerboard[0])):
+                if checkerboard[i][j] == 1:
+                    if solv[i][j] < 2 or solv[i][j] > 3:
+                        res[i].append(0)
+                    else:
+                        res[i].append(1)
+                else:
+                    if solv[i][j] == 3:
+                        res[i].append(1)
+                    else:
+                        res[i].append(0)
+        res.pop()
+
+        return res
+    
+    def game_of_life(self, step, longueur, largeur):
+
+        check = self.init_checkerboard(longueur, largeur)
+
+        for i in range(step):
+            check = self.evol_game(longueur, largeur)
+
+        return check
 
 #Affichage
-
 class Display:
 
     def __init__(self, display):
@@ -72,25 +133,10 @@ class Display:
     def __repr__(self):
         return self._display
 
-args = read_arg()
-
-doc = args.i
-## open the document and convert it into list(list)
-def open_file(doc):
-    liste = open(doc, "r")
-    res = []
-    res2 = []
-    for line in liste:
-        res.append(line)
-    for i in range(len(res)):
-        res2.append([])
-        for j in range(len(res[i])):
-            if res[i][j] != '\n' and res[i][j] != ' ':
-                res2[i].append(int(res[i][j]))
-    return res2
-
+##Functions
 ##complete the initial document with zero in order to match the board width dimensions
 def complete_with_zeros(input_list, target_length):
+
     # Calculer la différence de longueur entre la liste d'entrée et la longueur cible
     length_difference = target_length - len(input_list)
     
@@ -103,19 +149,6 @@ def complete_with_zeros(input_list, target_length):
         # Si la liste d'entrée est déjà de la bonne longueur, la retourner telle quelle
         return input_list
     
-
-## complete the list(list) with correct width dimension to match height required dimension
-def init_checkerboard(liste, longueur, largeur):
-    res = [0]*largeur
-    for i in range (largeur):
-        if i < len(liste):
-            res[i] = complete_with_zeros(liste[i], longueur)
-        else :
-            res[i] = [0]*longueur
-    return res
-
-check = init_checkerboard(open_file(doc), 4, 4)
-
 #count the number of living neighbours around a cell
 def living_neighbours(tableau, ligne, colonne):
     c = 0
@@ -129,47 +162,58 @@ def living_neighbours(tableau, ligne, colonne):
                     else:
                         c += tableau[i][j]
     return c
+        
+args = read_arg()
 
-#matrice des voisins vivants
-def mat_living_neighbours(tableau):
-    res = [[]]
-    for i in range(len(tableau)):
-        res.append([])
-        for j in range(len(tableau[0])):
-            res[i].append(living_neighbours(tableau, i, j))
-    res.pop()
-    return res
+##write the final list(list) into a document
+def write_file(res, doc):
+    with open(doc, 'w') as f:
+        for i in range(len(res)):
+            for j in range(len(res[i])):
+                f.write(str(res[i][j]))
+            f.write('\n')
 
-## allows to pass from one disposition to another
-def evol_game(checkerboard):
-    res = [[]]
+#initial document
+doc = args.i
 
-    solv = mat_living_neighbours(checkerboard)
+#initial partern as chackerboard
+check = Checkerboard(doc) 
 
-    for i in range(len(checkerboard)):
-        res.append([])
-        for j in range(len(checkerboard[0])):
-            if checkerboard[i][j] == 1:
-                if solv[i][j] < 2 or solv[i][j] > 3:
-                    res[i].append(0)
-                else:
-                    res[i].append(1)
-            else:
-                if solv[i][j] == 3:
-                    res[i].append(1)
-                else:
-                    res[i].append(0)
-    res.pop()
+write_file(check.game_of_life(20, 5, 5), args.o)
 
-    return res
+def main():
+    #initial document
+    doc = args.i
 
-def game_of_life(step, i, longueur, largeur):
-    doc = args.i 
-    check = init_checkerboard(open_file(doc), longueur, largeur)
+    #initial partern as chackerboard
+    check = Checkerboard(doc) 
 
-    for i in range(step):
-        check = evol_game(check)
+    #display
+    display = Display(args.d)
 
-    return check
+    #step
+    step = args.m
 
-#print(game_of_life(20, 'i', 20, 20))
+    #frame per second
+    fps = args.f
+
+    #window width
+    width = args.width
+
+    #window height
+    height = args.height
+
+    #initial checkerboard
+    check.init_checkerboard(20, 5)
+
+    #checkerboard with living neighbours
+    check.mat_living_neighbours(20, 5)
+
+    #checkerboard after step
+    check.game_of_life(20, 5, 5)
+
+    #display with pygame
+    if display:
+        check.game_of_life(20, 5, 5)
+    else:
+        write_file(check.game_of_life(20, 5, 5), args.o)
