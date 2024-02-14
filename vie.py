@@ -133,6 +133,34 @@ class Display:
     
     def __repr__(self):
         return self._display
+    
+    def display_result(self, longueur, largeur, step, fps, width, height, doc, args):
+        if self._display == False:
+            write_file(Checkerboard(doc).game_of_life(step, longueur, largeur), args.o)
+
+        else:
+            pygame.init()
+            screen = pygame.display.set_mode((width, height))
+            pygame.display.set_caption("Game of life")
+            clock = pygame.time.Clock()
+
+            running = True
+            while running:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_q:
+                            pygame.quit()
+                            running = False
+                screen.fill((255, 255, 255))
+                for k in range(step):
+                    for i in range(largeur):
+                        for j in range(longueur):
+                            if Checkerboard(doc).game_of_life(k, longueur, largeur)[i][j] == 1:
+                                pygame.draw.rect(screen, (0, 0, 0), (j*40, i*40, 40, 40))
+                    pygame.display.flip()
+                    pygame.display.update()
+                clock.tick(fps)
+                running = False
 
 ##Functions
 ##complete the initial document with zero in order to match the board width dimensions
@@ -184,7 +212,7 @@ def main():
     check = Checkerboard(doc) 
 
     #display
-    display = args.d
+    display = Display(args.d)
 
     #step
     step = args.m
@@ -203,30 +231,6 @@ def main():
     largeur = height // 40
 
     #display with pygame
-    if display == False:
-        write_file(check.game_of_life(step, longueur, largeur), args.o)
-
-    else:
-        pygame.init()
-        screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("Game of life")
-        clock = pygame.time.Clock()
-
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        pygame.quit()
-                        running = False
-            screen.fill((255, 255, 255))
-            for k in range(step):
-                for i in range(largeur):
-                    for j in range(longueur):
-                        if check.game_of_life(k, longueur, largeur)[i][j] == 1:
-                            pygame.draw.rect(screen, (0, 0, 0), (j*40, i*40, 40, 40))
-                pygame.display.flip()
-            clock.tick(fps)
-            running = False
+    display.display_result(longueur, largeur, step, fps, width, height, doc, args)
 
 main()
