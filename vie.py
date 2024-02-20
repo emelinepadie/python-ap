@@ -61,10 +61,12 @@ class Cell:
 #Checkerboard
 class Checkerboard:
 
-    def __init__(self, txt):
+    def __init__(self, txt, args):
         #l'affichage des résultats a 1 attribut
         # txt = documents texte contenant les états de chaque cellule 
         self._txt = txt
+        self._current_state = self.init_checkerboard(args.width, args.height)  # Ajout d'un attribut pour stocker l'état actuel
+
 
     def __repr__(self):
         return self._txt
@@ -96,7 +98,7 @@ class Checkerboard:
     
     #matrice des voisins vivants
     def mat_living_neighbours(self, longueur, largeur):
-        tableau = self.init_checkerboard(longueur, largeur)
+        tableau = self._current_state
         res = [[]]
         for i in range(len(tableau)):
             res.append([])
@@ -111,12 +113,12 @@ class Checkerboard:
         res = [[]]
 
         solv = self.mat_living_neighbours(longueur, largeur)
-        checkerboard = self.init_checkerboard(longueur, largeur)
+        
 
-        for i in range(len(checkerboard)):
+        for i in range(len(self._current_state)):
             res.append([])
-            for j in range(len(checkerboard[0])):
-                if checkerboard[i][j] == 1:
+            for j in range(len(self._current_state[0])):
+                if self._current_state[i][j] == 1:
                     if solv[i][j] < 2 or solv[i][j] > 3:
                         res[i].append(0)
                     else:
@@ -127,17 +129,18 @@ class Checkerboard:
                     else:
                         res[i].append(0)
         res.pop()
-
-        return res
+        self._current_state = res
+        return self._current_state
     
+
     def game_of_life(self, step, longueur, largeur):
+            # Modifier la méthode pour mettre à jour l'état actuel à chaque itération
 
-        check = self.init_checkerboard(longueur, largeur)
+            self._current_state = self.init_checkerboard(longueur, largeur)  # Initialisation de l'état actuel
 
-        for i in range(step):
-            check = self.evol_game(longueur, largeur)
-
-        return check
+            for i in range(step):
+                self._current_state = self.evol_game(longueur, largeur)
+            return self._current_state
     
     ##write the final list(list) into a document
     def write_file(self, args):
@@ -164,7 +167,7 @@ class Display:
     def display_result(self, longueur, largeur, step, fps, width, height, doc, args):
 
         if self._display == False:
-            Checkerboard(doc).write_file(args)
+            Checkerboard(doc, args).write_file(args)
 
         else:
             pygame.init()
@@ -181,13 +184,12 @@ class Display:
                             running = False
                 screen.fill((255, 255, 255))
 
-                if k <= step:
-                    alive = Checkerboard(doc).game_of_life(k, longueur, largeur)
+                if k <= args.m:
+                    alive = Checkerboard(doc, args).game_of_life(k, longueur, largeur)
                     for i in range(largeur):
                         for j in range(longueur):
                             if alive[i][j] == 1:
                                 pygame.draw.rect(screen, (0, 0, 0), (j*40, i*40, 40, 40))
-                    print(k)
                     k += 1
                     pygame.display.flip()
                     pygame.display.update()
@@ -212,6 +214,15 @@ def complete_with_zeros(input_list, target_length):
         # Si la liste d'entrée est déjà de la bonne longueur, la retourner telle quelle
         return input_list
 
+##write a list(list) into a document
+def write_file(tab, args):
+    with open(args.o, 'w') as f:
+        for i in range(len(tab)):
+            for j in range(len(tab[i])):
+                f.write(str(tab[i][j]))
+            f.write('\n')
+    f.close()
+
 def main():
 
     args = read_arg()
@@ -220,7 +231,7 @@ def main():
     doc = args.i
 
     #initial partern as chackerboard
-    check = Checkerboard(doc) 
+    check = Checkerboard(doc, args) 
 
     #display
     display = Display(args.d)
