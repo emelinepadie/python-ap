@@ -18,14 +18,14 @@ def read_arg():
     parser.add_argument('-f',type = int, default = 10, help='Take an int. Number of frame per second.')
     parser.add_argument('--width',type = int,default = 800,  help='Take an int. Window width.')
     parser.add_argument('--height',type = int, default = 600,  help='Take an int. Window height.')
-    
+    parser.add_argument('-g', '--debug', help = 'Enables debug log output.', action='store_true')
+
     args = parser.parse_args()
     return args
 
 ##Classes
 
 #Cellule
-
 class Cell:
 
     # le constructeur
@@ -57,7 +57,6 @@ class Cell:
                             c += tableau[i][j]
         return c
     
-
 #Checkerboard
 class Checkerboard:
 
@@ -133,18 +132,20 @@ class Checkerboard:
         return self._current_state
     
 
-    def game_of_life(self, step, longueur, largeur):
+    def game_of_life(self, step, longueur, largeur, logger):
             # Modifier la méthode pour mettre à jour l'état actuel à chaque itération
 
             self._current_state = self.init_checkerboard(longueur, largeur)  # Initialisation de l'état actuel
 
             for i in range(step):
                 self._current_state = self.evol_game(longueur, largeur)
+                logger.debug('Etat actuel : {}'.format(self._current_state))
+
             return self._current_state
     
     ##write the final list(list) into a document
-    def write_file(self, args):
-        res = self.game_of_life(args.m, args.width // 40, args.height // 40)
+    def write_file(self, args, logger):
+        res = self.game_of_life(args.m, args.width // 40, args.height // 40, logger)
         doc = args.o
         with open(doc, 'w') as f:
             for i in range(len(res)):
@@ -164,12 +165,13 @@ class Display:
     def __repr__(self):
         return self._display
     
-    def display_result(self, longueur, largeur, step, fps, width, height, doc, args):
+    def display_result(self, longueur, largeur, step, fps, width, height, doc, args, logger):
 
         if self._display == False:
-            Checkerboard(doc, args).write_file(args)
+            Checkerboard(doc, args).write_file(args, logger)
 
         else:
+            logger.debug('Affichage avec pygame')
             pygame.init()
             screen = pygame.display.set_mode((width, height))
             pygame.display.set_caption("Game of life")
@@ -185,7 +187,7 @@ class Display:
                 screen.fill((255, 255, 255))
 
                 if k <= args.m:
-                    alive = Checkerboard(doc, args).game_of_life(k, longueur, largeur)
+                    alive = Checkerboard(doc, args).game_of_life(k, longueur, largeur, logger)
                     for i in range(largeur):
                         for j in range(longueur):
                             if alive[i][j] == 1:
@@ -214,18 +216,21 @@ def complete_with_zeros(input_list, target_length):
         # Si la liste d'entrée est déjà de la bonne longueur, la retourner telle quelle
         return input_list
 
-##write a list(list) into a document
-def write_file(tab, args):
-    with open(args.o, 'w') as f:
-        for i in range(len(tab)):
-            for j in range(len(tab[i])):
-                f.write(str(tab[i][j]))
-            f.write('\n')
-    f.close()
 
 def main():
 
     args = read_arg()
+
+    ##Logger
+    logger = logging.getLogger(__name__)
+    handler = logging.StreamHandler(sys.stderr)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
+    if args.debug == True :
+        logger.setLevel(logging.DEBUG)
+
+    logger.debug('Debut du programme')
 
     #initial document
     doc = args.i
@@ -253,6 +258,6 @@ def main():
     largeur = height // 40
 
     #display with pygame
-    display.display_result(longueur, largeur, step, fps, width, height, doc, args)
+    display.display_result(longueur, largeur, step, fps, width, height, doc, args, logger)
 
 main()
