@@ -29,27 +29,44 @@ def read_arg():
 class Cell:
 
     # le constructeur
-    def __init__(self, state, neighboors, pos):
+    def __init__(self, state, pos):
         # un objet cell a des attributs
         # state = vivant (1) ou mort (0)
-        # neighboors = nbr de cellules vivantes autours d'elle
         # pos = coordonnées de la cellule
+
         self._state = state
-        self._neighboors = neighboors
         self._pos = pos
 
     # l'afficheur
     def __repr__(self):
         return self._pos
     
-#Checkerboard
+    #count the number of living neighbours around a cell
+    def living_neighbours(self, tableau):
+        c = 0
+        pos = self._pos
+        ligne = pos[0]
+        colonne = pos[1]
+        for i in range(ligne-1, ligne+2):
+            for j in range(colonne-1, colonne+2):
+                if i >= 0 and j >=0 :
+                    if i< len(tableau) and j<len(tableau[0]):
+                        if i == ligne and j == colonne:
+                            c += 0
+                        else:
+                            c += tableau[i][j]
+        return c
     
+
+#Checkerboard
 class Checkerboard:
 
-    def __init__(self, txt):
+    def __init__(self, txt, args):
         #l'affichage des résultats a 1 attribut
         # txt = documents texte contenant les états de chaque cellule 
         self._txt = txt
+        self._current_state = self.init_checkerboard(args.width, args.height)  # Ajout d'un attribut pour stocker l'état actuel
+
 
     def __repr__(self):
         return self._txt
@@ -81,12 +98,13 @@ class Checkerboard:
     
     #matrice des voisins vivants
     def mat_living_neighbours(self, longueur, largeur):
-        tableau = self.init_checkerboard(longueur, largeur)
+        tableau = self._current_state
         res = [[]]
         for i in range(len(tableau)):
             res.append([])
             for j in range(len(tableau[0])):
-                res[i].append(living_neighbours(tableau, i, j))
+                cell = Cell(tableau[i][j], (i, j))
+                res[i].append(cell.living_neighbours(tableau))
         res.pop()
         return res
 
@@ -95,12 +113,12 @@ class Checkerboard:
         res = [[]]
 
         solv = self.mat_living_neighbours(longueur, largeur)
-        checkerboard = self.init_checkerboard(longueur, largeur)
+        
 
-        for i in range(len(checkerboard)):
+        for i in range(len(self._current_state)):
             res.append([])
-            for j in range(len(checkerboard[0])):
-                if checkerboard[i][j] == 1:
+            for j in range(len(self._current_state[0])):
+                if self._current_state[i][j] == 1:
                     if solv[i][j] < 2 or solv[i][j] > 3:
                         res[i].append(0)
                     else:
@@ -111,17 +129,29 @@ class Checkerboard:
                     else:
                         res[i].append(0)
         res.pop()
-
-        return res
+        self._current_state = res
+        return self._current_state
     
+
     def game_of_life(self, step, longueur, largeur):
+            # Modifier la méthode pour mettre à jour l'état actuel à chaque itération
 
-        check = self.init_checkerboard(longueur, largeur)
+            self._current_state = self.init_checkerboard(longueur, largeur)  # Initialisation de l'état actuel
 
-        for i in range(step):
-            check = self.evol_game(longueur, largeur)
-
-        return check
+            for i in range(step):
+                self._current_state = self.evol_game(longueur, largeur)
+            return self._current_state
+    
+    ##write the final list(list) into a document
+    def write_file(self, args):
+        res = self.game_of_life(args.m, args.width // 40, args.height // 40)
+        doc = args.o
+        with open(doc, 'w') as f:
+            for i in range(len(res)):
+                for j in range(len(res[i])):
+                    f.write(str(res[i][j]))
+                f.write('\n')
+        f.close()
 
 #Affichage
 class Display:
@@ -133,6 +163,40 @@ class Display:
     
     def __repr__(self):
         return self._display
+    
+    def display_result(self, longueur, largeur, step, fps, width, height, doc, args):
+
+        if self._display == False:
+            Checkerboard(doc, args).write_file(args)
+
+        else:
+            pygame.init()
+            screen = pygame.display.set_mode((width, height))
+            pygame.display.set_caption("Game of life")
+            clock = pygame.time.Clock()
+            k = 0
+            running = True
+            while running:
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_q:
+                            pygame.quit()
+                            running = False
+                screen.fill((255, 255, 255))
+
+                if k <= args.m:
+                    alive = Checkerboard(doc, args).game_of_life(k, longueur, largeur)
+                    for i in range(largeur):
+                        for j in range(longueur):
+                            if alive[i][j] == 1:
+                                pygame.draw.rect(screen, (0, 0, 0), (j*40, i*40, 40, 40))
+                    k += 1
+                    pygame.display.flip()
+                    pygame.display.update()
+                clock.tick(fps)
+        
+                if k > step:
+                    running = False
 
 ##Functions
 ##complete the initial document with zero in order to match the board width dimensions
@@ -149,27 +213,13 @@ def complete_with_zeros(input_list, target_length):
     else:
         # Si la liste d'entrée est déjà de la bonne longueur, la retourner telle quelle
         return input_list
-    
-#count the number of living neighbours around a cell
-def living_neighbours(tableau, ligne, colonne):
-    c = 0
 
-    for i in range(ligne-1, ligne+2):
-        for j in range(colonne-1, colonne+2):
-            if i >= 0 and j >=0 :
-                if i< len(tableau) and j<len(tableau[0]):
-                    if i == ligne and j == colonne:
-                        c += 0
-                    else:
-                        c += tableau[i][j]
-    return c
-
-##write the final list(list) into a document
-def write_file(res, doc):
-    with open(doc, 'w') as f:
-        for i in range(len(res)):
-            for j in range(len(res[i])):
-                f.write(str(res[i][j]))
+##write a list(list) into a document
+def write_file(tab, args):
+    with open(args.o, 'w') as f:
+        for i in range(len(tab)):
+            for j in range(len(tab[i])):
+                f.write(str(tab[i][j]))
             f.write('\n')
     f.close()
 
@@ -181,10 +231,10 @@ def main():
     doc = args.i
 
     #initial partern as chackerboard
-    check = Checkerboard(doc) 
+    check = Checkerboard(doc, args) 
 
     #display
-    display = args.d
+    display = Display(args.d)
 
     #step
     step = args.m
@@ -203,30 +253,6 @@ def main():
     largeur = height // 40
 
     #display with pygame
-    if display == False:
-        write_file(check.game_of_life(step, longueur, largeur), args.o)
-
-    else:
-        pygame.init()
-        screen = pygame.display.set_mode((width, height))
-        pygame.display.set_caption("Game of life")
-        clock = pygame.time.Clock()
-
-        running = True
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        pygame.quit()
-                        running = False
-            screen.fill((255, 255, 255))
-            for k in range(step):
-                for i in range(largeur):
-                    for j in range(longueur):
-                        if check.game_of_life(k, longueur, largeur)[i][j] == 1:
-                            pygame.draw.rect(screen, (0, 0, 0), (j*40, i*40, 40, 40))
-                pygame.display.flip()
-            clock.tick(fps)
-            running = False
+    display.display_result(longueur, largeur, step, fps, width, height, doc, args)
 
 main()
