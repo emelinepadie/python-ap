@@ -216,7 +216,6 @@ def complete_with_zeros(input_list, target_length):
         # Si la liste d'entrée est déjà de la bonne longueur, la retourner telle quelle
         return input_list
 
-
 def main():
 
     args = read_arg()
